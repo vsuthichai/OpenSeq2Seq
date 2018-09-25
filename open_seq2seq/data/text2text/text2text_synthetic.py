@@ -9,32 +9,11 @@ from enum import Enum
 from open_seq2seq.data.data_layer import DataLayer
 from open_seq2seq.data.utils import load_pre_existing_vocabulary, pad_vocab_to_eight
 from open_seq2seq.data.text2text.t2t import _read_and_batch_from_files
+from open_seq2seq.data.text2text.text2text import SpecialTextTokens
 from open_seq2seq.data.text2text.tokenizer import PAD_ID
 
 
-class SpecialTextTokens(Enum):
-  PAD_ID = 0  # special padding token
-  EOS_ID = 1  # special end of sentence token
-  S_ID = 2  # special start of sentence token
-  UNK_ID = 3  # out-of-vocabulary tokens will map there
-  OUT_OF_BUCKET = 1234567890
-  END_OF_CHOICE = -100
-
-  @staticmethod
-  def to_string(s_token):
-    if s_token == SpecialTextTokens.UNK_ID.value:
-      return '<UNK>'
-    elif s_token == SpecialTextTokens.S_ID.value:
-      return '<S>'
-    elif s_token == SpecialTextTokens.EOS_ID.value:
-      return '</S>'
-    elif s_token == SpecialTextTokens.PAD_ID.value:
-      return '<PAD>'
-    else:
-      raise ValueError("Unknown Value in SpecialTokens")
-
-
-class ParallelTextDataLayer(DataLayer):
+class SyntheticTextDataLayer(DataLayer):
   @staticmethod
   def get_required_params():
     return dict(DataLayer.get_required_params(), **{
@@ -62,7 +41,7 @@ class ParallelTextDataLayer(DataLayer):
     })
 
   def __init__(self, params, model, num_workers=1, worker_id=0):
-    super(ParallelTextDataLayer, self).__init__(params, model,
+    super(SyntheticTextDataLayer, self).__init__(params, model,
                                                 num_workers, worker_id)
     self._batch_size = self.params['batch_size']
     self.source_file = self.params['source_file']
@@ -183,6 +162,7 @@ class ParallelTextDataLayer(DataLayer):
                                       [SpecialTextTokens.EOS_ID.value], self._pad_lengths_to_eight), dtype="int32")
 
   def build_graph(self):
+    """
     _sources = tf.data.TextLineDataset(self.source_file)\
       .map(lambda line: tf.py_func(func=self._src_token_to_id, inp=[line],
                                    Tout=[tf.int32], stateful=False),
@@ -200,7 +180,7 @@ class ParallelTextDataLayer(DataLayer):
     _src_tgt_dataset = tf.data.Dataset.zip((_sources, _targets)).filter(
       lambda t1, t2: tf.logical_and(tf.less_equal(t1[1], self.max_len),
                                     tf.less_equal(t2[1], self.max_len))
-    )#.cache()
+    ).cache()
 
     if self._num_workers > 1:
       _src_tgt_dataset = _src_tgt_dataset\
@@ -239,6 +219,33 @@ class ParallelTextDataLayer(DataLayer):
     else:
       t1, _ = self.iterator.get_next()
       self._input_tensors['source_tensors'] = [t1[0], t1[1]]
+    """
+    def generate_batch():
+      avg_len = 30
+
+      while 1:
+        src_batch = np.zeros((self._batch_size, self.max_len), dtype=np.int)
+        src_batch[:, 0] = SpecialTextTokens.S_ID.value
+        src_batch[:, 1:avg_len + 1] = np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(self._batch_size, avg_len))
+        src_batch[:, avg_len + 1] = SpecialTextTokens.EOS_ID.value
+
+        trg_batch = np.zeros((self._batch_size, self.max_len), dtype=np.int)
+        trg_batch[:, 0] = SpecialTextTokens.S_ID.value
+        trg_batch[:, 1:avg_len + 1] = np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(self._batch_size, avg_len))
+        trg_batch[:, avg_len + 1] = SpecialTextTokens.EOS_ID.value
+
+        yield ((src_batch, [avg_len + 2] * self._batch_size), (trg_batch, [avg_len + 2] * self._batch_size))
+
+    dataset = tf.data.Dataset.from_generator(
+      generate_batch,
+      ((tf.int32, tf.int32), (tf.int32, tf.int32)),
+      ((tf.TensorShape([None, None]), tf.TensorShape([None])), (tf.TensorShape([None, None]), tf.TensorShape([None])))
+    )
+    self._iterator = dataset.make_initializable_iterator()
+    ((x, x_length), (y, y_length)) = self.iterator.get_next()
+    self._input_tensors['source_tensors'] = [x, x_length]
+    self._input_tensors['target_tensors'] = [y, y_length]
+
 
   def create_interactive_placeholders(self):
     self._text = tf.placeholder(dtype=tf.int32, shape=[self._batch_size, None])
@@ -279,93 +286,3 @@ class ParallelTextDataLayer(DataLayer):
   def input_tensors(self):
     return self._input_tensors
 
-class TransformerDataLayer(DataLayer):
-  """Wraps Transformers data pipeline into the form for OpenSeq2Seq"""
-  @staticmethod
-  def get_required_params():
-    return dict(DataLayer.get_required_params(), **{
-      'data_dir': str,
-      'file_pattern': str,
-      'src_vocab_file': str,
-      'batch_size': int,
-      'max_length': int,
-      'shuffle': bool,
-      "delimiter": str,
-    })
-
-  @staticmethod
-  def get_optional_params():
-    return dict(DataLayer.get_optional_params(), **{
-      'repeat': int,
-      'num_cpu_cores': int,
-      'tgt_vocab_file': str,
-      'pad_data_to_eight': bool,
-      'batch_in_tokens': bool,
-    })
-
-  def __init__(self, params, model, num_workers=1, worker_id=0):
-    super(TransformerDataLayer, self).__init__(params, model,
-                                               num_workers, worker_id)
-    self.src_vocab_file = self.params['src_vocab_file']
-    # if tgt vocab isn't specified - assume common vocab file
-    self.tgt_vocab_file = self.params.get('tgt_vocab_file', self.src_vocab_file)
-
-    # load source and target vocabularies to RAM
-    # pre-processed vocab starts from PAD, EOS
-    self.src_seq2idx = load_pre_existing_vocabulary(
-      self.src_vocab_file,
-      min_idx=PAD_ID)
-    self.tgt_seq2idx = load_pre_existing_vocabulary(
-      self.tgt_vocab_file,
-      min_idx=PAD_ID)
-
-    self.src_idx2seq = {idx: w for w, idx in self.src_seq2idx.items()}
-    self.tgt_idx2seq = {idx: w for w, idx in self.tgt_seq2idx.items()}
-
-    self.params['src_vocab_size'] = len(self.src_seq2idx)
-    self.params['tgt_vocab_size'] = len(self.tgt_seq2idx)
-    self.params['target_seq2idx'] = self.tgt_seq2idx
-    self.params['source_seq2idx'] = self.src_seq2idx
-    self.params['target_idx2seq'] = self.tgt_idx2seq
-    self.params['source_idx2seq'] = self.src_idx2seq
-
-    self._num_workers = num_workers
-    self._worker_id = worker_id
-
-    self._input_tensors = {}
-    self._iterator = None
-    self.batched_dataset = None
-
-  def build_graph(self):
-    file_pattern = os.path.join(self.params['data_dir'],
-                                self.params['file_pattern'])
-    self.batched_dataset = _read_and_batch_from_files(
-      file_pattern=file_pattern,
-      batch_size=self.params['batch_size'],
-      max_length=self.params['max_length'],
-      num_cpu_cores=self.params.get('num_cpu_cores', 2),
-      shuffle=self.params['shuffle'],
-      repeat=self.params['repeat'],
-      num_workers=self._num_workers,
-      worker_id=self._worker_id,
-      batch_in_tokens=self.params.get('batch_in_tokens', True),
-      pad2eight=self.params.get('pad_data_to_eight', False))
-
-    self._iterator = self.batched_dataset.make_initializable_iterator()
-    x, y = self.iterator.get_next()
-
-    len_x = tf.count_nonzero(x, axis=1, dtype=tf.int32)
-    len_y = tf.count_nonzero(y, axis=1, dtype=tf.int32)
-    if self.params['mode'] == 'train' or self.params['mode'] == 'eval':
-      self._input_tensors['source_tensors'] = [x, len_x]
-      self._input_tensors['target_tensors'] = [y, len_y]
-    else:
-      self._input_tensors['source_tensors'] = [x, len_x]
-
-  @property
-  def iterator(self):
-    return self._iterator
-
-  @property
-  def input_tensors(self):
-    return self._input_tensors

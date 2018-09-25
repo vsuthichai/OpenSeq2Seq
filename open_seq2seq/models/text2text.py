@@ -130,6 +130,17 @@ class Text2Text(EncoderDecoderModel):
     y_sample = y[0]
     len_y_sample = len_y[0]
 
+    #print("src len {} sum {}".format(len_x, sum(len_x)))
+    #print("trg len {} sum {}".format(len_y, sum(len_y)))
+    #print(x)
+    #print(len_x)
+    #print(y)
+    #print(len_y)
+
+    #print(y_sample)
+    #print(len_y_sample)
+    #print(y_sample[:len_y_sample])
+
     deco_print(
         "Train Source[0]:     " + array_to_string(
             x_sample[:len_x_sample],
@@ -154,6 +165,7 @@ class Text2Text(EncoderDecoderModel):
         ),
         offset=4,
     )
+
     return {}
 
   def evaluate(self, input_values, output_values):

@@ -509,6 +509,8 @@ def get_base_config(args):
   parser.add_argument('--precision', type=str, default='fp32',
                       choices=['fp32', 'fp16', 'int8'],
                       help='precision for TF-TRT (only valid with --use_trt')  
+  parser.add_argument('--profile', type=bool, default=False,
+                      help='tensorflow profiling')
   args, unknown = parser.parse_known_args(args)
 
   if args.mode not in [
@@ -713,7 +715,6 @@ def create_model(args, base_config, config_module, base_model, hvd):
     if hvd is None or hvd.rank() == 0:
       deco_print("Inference config:")
       pprint.pprint(infer_config)
-
 
   if args.benchmark:
     deco_print("Adjusting config for benchmarking")

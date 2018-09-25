@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import contextlib
 import os
 import sys
 import tensorflow as tf
@@ -11,16 +12,7 @@ from open_seq2seq.utils.utils import deco_print, get_base_config, check_logdir,\
                                      create_logdir, create_model
 from open_seq2seq.utils import train, infer, evaluate
 
-def main():
-  # Parse args and create config
-  args, base_config, base_model, config_module = get_base_config(sys.argv[1:])
-
-  if args.mode == "interactive_infer":
-    raise ValueError(
-        "Interactive infer is meant to be run from an IPython",
-        "notebook not from run.py."
-    )
-
+def init_horovod(base_config):
   # Initilize Horovod
   if base_config['use_horovod']:
     import horovod.tensorflow as hvd
@@ -30,10 +22,15 @@ def main():
   else:
     hvd = None
 
+  return hvd
+
+
+def main(args, base_config, base_model, config_model, hvd):
   restore_best_checkpoint = base_config.get('restore_best_checkpoint', False)
 
   # Check logdir and create it if necessary
-  checkpoint = check_logdir(args, base_config, restore_best_checkpoint)
+  if hvd is None or hvd.rank() == 0:
+    checkpoint = check_logdir(args, base_config, restore_best_checkpoint)
   if args.enable_logs:
     if hvd is None or hvd.rank() == 0:
       old_stdout, old_stderr, stdout_log, stderr_log = create_logdir(
@@ -72,6 +69,29 @@ def main():
     stdout_log.close()
     stderr_log.close()
 
+@contextlib.contextmanager
+def profile_context(profile, hvd):
+  if profile:
+    with tf.contrib.tfprof.ProfileContext(
+        "os2s_{}".format(hvd.rank()), trace_steps=range(100, 120), dump_steps=range(100, 120)) as pctx:
+      opts = tf.profiler.ProfileOptionBuilder.time_and_memory()
+      pctx.add_auto_profiling("op", opts, range(100, 120))
+      #pctx.add_auto_profiling("scope", opts, [15])
+      yield
+  else:
+    yield
 
 if __name__ == '__main__':
-  main()
+  # Parse args and create config
+  args, base_config, base_model, config_module = get_base_config(sys.argv[1:])
+
+  if args.mode == "interactive_infer":
+    raise ValueError(
+        "Interactive infer is meant to be run from an IPython",
+        "notebook not from run.py."
+    )
+
+  hvd = init_horovod(base_config)
+  with profile_context(args.profile, hvd):
+    main(args, base_config, base_model, config_module, hvd)
+

@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 # pylint: disable=no-name-in-module
 from tensorflow.python import debug as tf_debug
+from tensorflow.python.client import timeline
 from six.moves import range
 
 from open_seq2seq.utils.utils import deco_print, get_results_for_epoch, \
@@ -55,7 +56,7 @@ def train(train_model, eval_model=None, debug_port=None):
             print_ppl=isinstance(eval_model, LSTMLM),
         ),
     )
-
+  #print(train_model.params)
   if master_worker:
     if train_model.params['save_checkpoint_steps'] is not None:
       # noinspection PyTypeChecker
@@ -108,6 +109,9 @@ def train(train_model, eval_model=None, debug_port=None):
     deco_print("WARNING: Can't compute number of objects per step, since "
                "train model does not define get_num_objects_per_step method.")
 
+  #fetches.append(train_model.get_data_layer().input_tensors['source_tensors'][1])
+  #fetches.append(train_model.get_data_layer().input_tensors['target_tensors'][1])
+
   # starting training
   with tf.train.MonitoredTrainingSession(
       scaffold=scaffold,
@@ -121,6 +125,11 @@ def train(train_model, eval_model=None, debug_port=None):
   ) as sess:
     step = 0
     num_bench_updates = 0
+
+    run_options = tf.RunOptions(trace_level=tf.RunOptions.SOFTWARE_TRACE)
+    run_metadata = tf.RunMetadata()
+    data = []
+
     while True:
       if sess.should_stop():
         break
@@ -128,19 +137,39 @@ def train(train_model, eval_model=None, debug_port=None):
       try:
         feed_dict = {}
         iter_size = train_model.params.get('iter_size', 1)
-        if iter_size > 1:
+        if iter_size >= 1:
           feed_dict[train_model.skip_update_ph] = step % iter_size != 0
         if step % iter_size == 0:
           if step >= bench_start:
             num_bench_updates += 1
+          #fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
           fetches_vals = sess.run(fetches, feed_dict)
         else:
           # necessary to skip "no-update" steps when iter_size > 1
           def run_with_no_hooks(step_context):
-            return step_context.session.run(fetches, feed_dict)
+            #start = time.time()
+            ret = step_context.session.run(fetches, feed_dict)
+            #dur = time.time() - start
+            #src_len, trg_len = ret[-2:]
+            #sum_src_len = sum(src_len)
+            #sum_trg_len = sum(trg_len)
+            #if step > 96:
+              #data.append((dur, sum_src_len, sum_trg_len))
+              #print("Rank {} step {} duration {} sum_src_len {} sum_trg_len {}".format(hvd.rank(), step, dur, sum_src_len, sum_trg_len))
+            #if step > 96 and step % 31 == 0:
+              #print("Rank {} step {} min_duration {}".format(hvd.rank(), step, min([ i[0] for i in data ])))
+              #print("Rank {} step {} min_src_length {}".format(hvd.rank(), step, min([ i[1] for i in data ])))
+              #print("Rank {} step {} min_trg_length {}".format(hvd.rank(), step, min([ i[2] for i in data ])))
+              #print("Rank {} step {} max_duration {}".format(hvd.rank(), step, max([ i[0] for i in data ])))
+              #print("Rank {} step {} max_src_length {}".format(hvd.rank(), step, max([ i[1] for i in data ])))
+              #print("Rank {} step {} max_trg_length {}".format(hvd.rank(), step, max([ i[2] for i in data ])))
+              #print("Rank {} step {} avg_duration {}".format(hvd.rank(), step, sum([ i[0] for i in data ])/len(data)))
+            #return step_context.session.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
+            return ret
           fetches_vals = sess.run_step_fn(run_with_no_hooks)
       except tf.errors.OutOfRangeError:
         break
+
       if step >= bench_start:
         total_time += time.time() - tm
         if len(fetches) > 1:
@@ -153,6 +182,13 @@ def train(train_model, eval_model=None, debug_port=None):
               if master_worker:
                 avg_objects = 1.0 * total_objects_cur / total_time
                 deco_print("Avg objects per second: {:.3f}".format(avg_objects))
+
+      #if step >= 1280 and step <= 1440:
+        #fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+        #chrome_trace = fetched_timeline.generate_chrome_trace_format()
+        #fname = "timelines/rank_{}_step_{}.json".format(hvd.rank(), step)
+        #with open(fname, "w") as f:
+          #f.write(chrome_trace)
 
       step += 1
 
