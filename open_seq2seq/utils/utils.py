@@ -65,11 +65,20 @@ def collect_if_horovod(value, hvd, mode='sum'):
   mpi4py.rc.initialize = False
   from mpi4py import MPI
 
-  values = MPI.COMM_WORLD.gather(value)
-  # synchronize all workers
-  MPI.COMM_WORLD.Barrier()
+  comm = MPI.COMM_WORLD
+  group = comm.Get_group()
+  wgroup = group.Excl([comm.Get_size()-1])
+  wcomm = comm.Create(wgroup)
 
-  if MPI.COMM_WORLD.Get_rank() != 0:
+#  values = MPI.COMM_WORLD.gather(value)
+  values = wcomm.gather(value)
+
+  # synchronize all workers
+  wcomm.Barrier()
+  #MPI.COMM_WORLD.Barrier()
+
+  if wcomm.Get_rank() != 0:
+  #if MPI.COMM_WORLD.Get_rank() != 0:
     return None
 
   if mode == 'sum':
@@ -715,6 +724,7 @@ def create_model(args, base_config, config_module, base_model, hvd):
     if hvd is None or hvd.rank() == 0:
       deco_print("Inference config:")
       pprint.pprint(infer_config)
+
 
   if args.benchmark:
     deco_print("Adjusting config for benchmarking")

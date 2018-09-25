@@ -12,11 +12,16 @@ from open_seq2seq.utils.utils import deco_print, get_base_config, check_logdir,\
                                      create_logdir, create_model
 from open_seq2seq.utils import train, infer, evaluate
 
-def init_horovod(base_config):
+from mpi4py import MPI
+import time
+
+comm = MPI.COMM_WORLD
+
+def init_horovod(base_config, hvd_size):
   # Initilize Horovod
   if base_config['use_horovod']:
     import horovod.tensorflow as hvd
-    hvd.init()
+    hvd.init(comm=list(range(hvd_size)))
     if hvd.rank() == 0:
       deco_print("Using horovod")
   else:
@@ -24,7 +29,39 @@ def init_horovod(base_config):
 
   return hvd
 
+def start_coordinator(comm, size, iter_size):
 
+  SLEEP_TIME = 0.0005  # in seconds
+
+  count_limit = iter_size*size
+
+  counter = 0
+  notified = [0 for _ in range(size)]
+
+  while True:
+    for worker in range(size):
+      if comm.Iprobe(source=worker):
+        comm.recv(source=worker)    # message is dummy so no need for return value
+  
+        if counter >= count_limit - size:
+          comm.send({'msg':'sync'}, dest=worker)   
+          assert(notified[worker]==0)
+          notified[worker] = 1 
+          counter += 1
+
+          if counter == count_limit:
+            assert(sum(notified)==size)
+            counter = 0
+            notified = [0 for _ in range(size)]
+            break
+        else:
+          comm.send({'msg':'continue'}, dest=worker)   
+          counter += 1
+
+    time.sleep(SLEEP_TIME)
+
+
+ 
 def main(args, base_config, base_model, config_model, hvd):
   restore_best_checkpoint = base_config.get('restore_best_checkpoint', False)
 
@@ -82,8 +119,15 @@ def profile_context(profile, hvd):
     yield
 
 if __name__ == '__main__':
+  mpi_rank = comm.Get_rank()
+  mpi_size = comm.Get_size()
+
   # Parse args and create config
   args, base_config, base_model, config_module = get_base_config(sys.argv[1:])
+
+  if mpi_rank == mpi_size - 1: 
+    start_coordinator(comm=comm, size=mpi_size-1, iter_size=base_config['iter_size'])
+    sys.exit(0)
 
   if args.mode == "interactive_infer":
     raise ValueError(
@@ -91,7 +135,7 @@ if __name__ == '__main__':
         "notebook not from run.py."
     )
 
-  hvd = init_horovod(base_config)
+  hvd = init_horovod(base_config, mpi_size-1)
   with profile_context(args.profile, hvd):
     main(args, base_config, base_model, config_module, hvd)
 

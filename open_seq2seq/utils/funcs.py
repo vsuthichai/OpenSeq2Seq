@@ -17,6 +17,7 @@ from .hooks import PrintSamplesHook, RunEvaluationHook, PrintLossAndTimeHook, \
                    BroadcastGlobalVariablesHook
 from open_seq2seq.models import LSTMLM
 
+from mpi4py import MPI
 
 def train(train_model, eval_model=None, debug_port=None):
   if eval_model is not None and 'eval_steps' not in eval_model.params:
@@ -130,45 +131,64 @@ def train(train_model, eval_model=None, debug_port=None):
     run_metadata = tf.RunMetadata()
     data = []
 
+    comm = MPI.COMM_WORLD
+    mpi_size = comm.Get_size()
+
     while True:
       if sess.should_stop():
         break
       tm = time.time()
       try:
         feed_dict = {}
-        iter_size = train_model.params.get('iter_size', 1)
-        if iter_size >= 1:
-          feed_dict[train_model.skip_update_ph] = step % iter_size != 0
-        if step % iter_size == 0:
+
+        comm.send({}, dest=mpi_size-1)
+        msg = comm.recv(source=mpi_size-1)['msg']       
+        feed_dict[train_model.skip_update_ph] = (msg != 'sync')
+
+        if msg == 'sync':
           if step >= bench_start:
             num_bench_updates += 1
-          #fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
           fetches_vals = sess.run(fetches, feed_dict)
         else:
-          # necessary to skip "no-update" steps when iter_size > 1
           def run_with_no_hooks(step_context):
-            #start = time.time()
             ret = step_context.session.run(fetches, feed_dict)
-            #dur = time.time() - start
-            #src_len, trg_len = ret[-2:]
-            #sum_src_len = sum(src_len)
-            #sum_trg_len = sum(trg_len)
-            #if step > 96:
-              #data.append((dur, sum_src_len, sum_trg_len))
-              #print("Rank {} step {} duration {} sum_src_len {} sum_trg_len {}".format(hvd.rank(), step, dur, sum_src_len, sum_trg_len))
-            #if step > 96 and step % 31 == 0:
-              #print("Rank {} step {} min_duration {}".format(hvd.rank(), step, min([ i[0] for i in data ])))
-              #print("Rank {} step {} min_src_length {}".format(hvd.rank(), step, min([ i[1] for i in data ])))
-              #print("Rank {} step {} min_trg_length {}".format(hvd.rank(), step, min([ i[2] for i in data ])))
-              #print("Rank {} step {} max_duration {}".format(hvd.rank(), step, max([ i[0] for i in data ])))
-              #print("Rank {} step {} max_src_length {}".format(hvd.rank(), step, max([ i[1] for i in data ])))
-              #print("Rank {} step {} max_trg_length {}".format(hvd.rank(), step, max([ i[2] for i in data ])))
-              #print("Rank {} step {} avg_duration {}".format(hvd.rank(), step, sum([ i[0] for i in data ])/len(data)))
-            #return step_context.session.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
             return ret
           fetches_vals = sess.run_step_fn(run_with_no_hooks)
       except tf.errors.OutOfRangeError:
         break
+
+#        iter_size = train_model.params.get('iter_size', 1)
+#        if iter_size >= 1:
+#          feed_dict[train_model.skip_update_ph] = step % iter_size != 0
+#        if step % iter_size == 0:
+#          if step >= bench_start:
+#            num_bench_updates += 1
+#          #fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
+#        else:
+#          # necessary to skip "no-update" steps when iter_size > 1
+#          def run_with_no_hooks(step_context):
+#            #start = time.time()
+#            ret = step_context.session.run(fetches, feed_dict)
+#            #dur = time.time() - start
+#            #src_len, trg_len = ret[-2:]
+#            #sum_src_len = sum(src_len)
+#            #sum_trg_len = sum(trg_len)
+#            #if step > 96:
+#              #data.append((dur, sum_src_len, sum_trg_len))
+#              #print("Rank {} step {} duration {} sum_src_len {} sum_trg_len {}".format(hvd.rank(), step, dur, sum_src_len, sum_trg_len))
+#            #if step > 96 and step % 31 == 0:
+#              #print("Rank {} step {} min_duration {}".format(hvd.rank(), step, min([ i[0] for i in data ])))
+#              #print("Rank {} step {} min_src_length {}".format(hvd.rank(), step, min([ i[1] for i in data ])))
+#              #print("Rank {} step {} min_trg_length {}".format(hvd.rank(), step, min([ i[2] for i in data ])))
+#              #print("Rank {} step {} max_duration {}".format(hvd.rank(), step, max([ i[0] for i in data ])))
+#              #print("Rank {} step {} max_src_length {}".format(hvd.rank(), step, max([ i[1] for i in data ])))
+#              #print("Rank {} step {} max_trg_length {}".format(hvd.rank(), step, max([ i[2] for i in data ])))
+#              #print("Rank {} step {} avg_duration {}".format(hvd.rank(), step, sum([ i[0] for i in data ])/len(data)))
+#            #return step_context.session.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
+#            return ret
+#          fetches_vals = sess.run_step_fn(run_with_no_hooks)
+#      except tf.errors.OutOfRangeError:
+#        break
 
       if step >= bench_start:
         total_time += time.time() - tm
