@@ -44,6 +44,7 @@ def start_coordinator(comm, size, iter_size):
         comm.recv(source=worker)    # message is dummy so no need for return value
   
         if counter >= count_limit - size:
+          #print('Sync msg sent to worker '+str(worker))
           comm.send({'msg':'sync'}, dest=worker)   
           assert(notified[worker]==0)
           notified[worker] = 1 
@@ -51,6 +52,7 @@ def start_coordinator(comm, size, iter_size):
 
           if counter == count_limit:
             assert(sum(notified)==size)
+            #print('Done with global step')
             counter = 0
             notified = [0 for _ in range(size)]
             break
@@ -64,7 +66,8 @@ def start_coordinator(comm, size, iter_size):
             duration = 1
 
           comm.send({'msg':'continue', 'ctr': duration}, dest=worker)   
-          counter += 1
+          #print('sent to '+str(worker)+' duration='+str(duration))
+          counter += duration
 
     time.sleep(SLEEP_TIME)
 

@@ -103,7 +103,7 @@ def reduce_gradients(grads_and_vars, on_horovod):
                 dense_shape=grad.dense_shape)
               _grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
             avg_grad = allreduce(_grad)
-            averaged_grads_and_vars.append((avg_grad, var))
+            averaged_grads_and_vars.append((avg_grad / iter_size, var))
           else:
             averaged_grads_and_vars.append((None, var))
       return averaged_grads_and_vars
@@ -225,10 +225,12 @@ def optimize_loss(loss,
               validate_shape=bool(var.get_shape())
           )
           if isinstance(grad, tf.IndexedSlices):
-            add_grads = tf.scatter_nd_add(grad_accum, grad.indices,
-                                          grad.values / iter_size)
+            #add_grads = tf.scatter_nd_add(grad_accum, grad.indices,
+                                          #grad.values / iter_size)
+            add_grads = tf.scatter_nd_add(grad_accum, grad.indices, grad.values)
           else:
-            add_grads = grad_accum + grad / iter_size
+            #add_grads = grad_accum + grad / iter_size
+            add_grads = grad_accum + grad
 
           accum_ops.append(tf.assign(grad_accum, add_grads))
           grads_and_vars_accum.append((grad_accum, var))
