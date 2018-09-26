@@ -134,18 +134,28 @@ def train(train_model, eval_model=None, debug_port=None):
     comm = MPI.COMM_WORLD
     mpi_size = comm.Get_size()
 
+    ctr = 0
+    coord = {}
+    feed_dict = {}
+
     while True:
       if sess.should_stop():
         break
       tm = time.time()
       try:
-        feed_dict = {}
+        if ctr == 0:
+          feed_dict = {}
 
-        comm.send({}, dest=mpi_size-1)
-        msg = comm.recv(source=mpi_size-1)['msg']       
-        feed_dict[train_model.skip_update_ph] = (msg != 'sync')
+          comm.send({}, dest=mpi_size-1)
+          coord = comm.recv(source=mpi_size-1)       
+          feed_dict[train_model.skip_update_ph] = (coord['msg'] != 'sync')
 
-        if msg == 'sync':
+          if coord['msg'] == 'continue':
+            ctr = coord['ctr'] 
+          else:
+            ctr = 1
+
+        if coord['msg'] == 'sync':
           if step >= bench_start:
             num_bench_updates += 1
           fetches_vals = sess.run(fetches, feed_dict)
@@ -154,6 +164,8 @@ def train(train_model, eval_model=None, debug_port=None):
             ret = step_context.session.run(fetches, feed_dict)
             return ret
           fetches_vals = sess.run_step_fn(run_with_no_hooks)
+       
+        ctr -= 1
       except tf.errors.OutOfRangeError:
         break
 
@@ -259,3 +271,4 @@ def evaluate(model, checkpoint):
     deco_print("Finished evaluation")
     return eval_dict
   return None
+

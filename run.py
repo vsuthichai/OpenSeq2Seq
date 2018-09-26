@@ -55,7 +55,15 @@ def start_coordinator(comm, size, iter_size):
             notified = [0 for _ in range(size)]
             break
         else:
-          comm.send({'msg':'continue'}, dest=worker)   
+          # logic to determine duration based on counter && count_limit && iter_size
+          if counter <= count_limit*1/2:
+            duration = 4
+          elif counter <= count_limit*3/4:
+            duration = 2
+          else:
+            duration = 1
+
+          comm.send({'msg':'continue', 'ctr': duration}, dest=worker)   
           counter += 1
 
     time.sleep(SLEEP_TIME)
