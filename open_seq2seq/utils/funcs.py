@@ -142,14 +142,15 @@ def train(train_model, eval_model=None, debug_port=None):
         if step % iter_size == 0:
           if step >= bench_start:
             num_bench_updates += 1
-          fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
-          #fetches_vals = sess.run(fetches, feed_dict)
+          #fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
+          fetches_vals = sess.run(fetches, feed_dict)
         else:
           # necessary to skip "no-update" steps when iter_size > 1
           def run_with_no_hooks(step_context):
-            #start = time.time()
-            #ret = step_context.session.run(fetches, feed_dict)
-            #dur = time.time() - start
+            start = time.time()
+            ret = step_context.session.run(fetches, feed_dict)
+            dur = time.time() - start
+            print(dur)
             #src_len, trg_len = ret[-2:]
             #sum_src_len = sum(src_len)
             #sum_trg_len = sum(trg_len)
@@ -164,8 +165,8 @@ def train(train_model, eval_model=None, debug_port=None):
               #print("Rank {} step {} max_src_length {}".format(hvd.rank(), step, max([ i[1] for i in data ])))
               #print("Rank {} step {} max_trg_length {}".format(hvd.rank(), step, max([ i[2] for i in data ])))
               #print("Rank {} step {} avg_duration {}".format(hvd.rank(), step, sum([ i[0] for i in data ])/len(data)))
-            return step_context.session.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
-            #return ret
+            #return step_context.session.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
+            return ret
           fetches_vals = sess.run_step_fn(run_with_no_hooks)
       except tf.errors.OutOfRangeError:
         break
@@ -183,12 +184,12 @@ def train(train_model, eval_model=None, debug_port=None):
                 avg_objects = 1.0 * total_objects_cur / total_time
                 deco_print("Avg objects per second: {:.3f}".format(avg_objects))
 
-      if step >= 1280 and step <= 1440:
-        fetched_timeline = timeline.Timeline(run_metadata.step_stats)
-        chrome_trace = fetched_timeline.generate_chrome_trace_format()
-        fname = "timelines/rank_{}_step_{}.json".format(hvd.rank(), step)
-        with open(fname, "w") as f:
-          f.write(chrome_trace)
+      #if step >= 1280 and step <= 1440:
+        #fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+        #chrome_trace = fetched_timeline.generate_chrome_trace_format()
+        #fname = "timelines/rank_{}_step_{}.json".format(hvd.rank(), step)
+        #with open(fname, "w") as f:
+          #f.write(chrome_trace)
 
       step += 1
 
