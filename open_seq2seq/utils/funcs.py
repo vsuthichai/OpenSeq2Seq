@@ -147,10 +147,10 @@ def train(train_model, eval_model=None, debug_port=None):
         else:
           # necessary to skip "no-update" steps when iter_size > 1
           def run_with_no_hooks(step_context):
-            #start = time.time()
+            start = time.time()
             ret = step_context.session.run(fetches, feed_dict)
-            #dur = time.time() - start
-            #print(dur)
+            dur = time.time() - start
+            print(dur)
             #src_len, trg_len = ret[-2:]
             #sum_src_len = sum(src_len)
             #sum_trg_len = sum(trg_len)
