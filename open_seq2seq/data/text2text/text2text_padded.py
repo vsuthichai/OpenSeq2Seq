@@ -215,6 +215,7 @@ class PaddedParallelTextDataLayer(DataLayer):
            num_parallel_calls=self._map_parallel_calls)
     """
 
+    """
     _sources = tf.data.TextLineDataset(self.source_file) \
       .map(lambda line: tf.py_func(func=self._my_src_token_to_id, inp=[line],
                                    Tout=[tf.int32], stateful=False),
@@ -228,6 +229,32 @@ class PaddedParallelTextDataLayer(DataLayer):
            num_parallel_calls=self._map_parallel_calls) \
       .map(lambda tokens: (tokens, self._my_token_size(tokens)),
            num_parallel_calls=self._map_parallel_calls) 
+    """
+    def generate_src_batch():
+      avg_len = 30
+
+      while 1:
+          src = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          yield ((src, len(src)))
+
+    def generate_trg_batch():
+      avg_len = 30
+
+      while 1:
+          trg = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.trg_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          yield ((trg, len(trg)))
+
+    _sources = Dataset.from_generator(
+        generate_src_batch,
+        ((tf.int32, tf.int32)),
+        ((tf.TensorShape([None, None]), tf.TensorShape([None])))
+    )
+
+    _targets = Dataset.from_generator(
+        generate_trg_batch,
+        ((tf.int32, tf.int32)),
+        ((tf.TensorShape([None, None]), tf.TensorShape([None])))
+    )
 
     _src_tgt_dataset = tf.data.Dataset.zip((_sources, _targets)).filter(
       lambda t1, t2: tf.logical_and(tf.less_equal(t1[1], self.max_len),
