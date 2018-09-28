@@ -146,14 +146,14 @@ def train(train_model, eval_model=None, debug_port=None):
           #fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
           fetches_vals = sess.run(fetches, feed_dict)
           dur = time.time() - start
-          print("Rank {} step {} dur {}".format(hvd.rank(), step, dur))
+          #print("Rank {} step {} dur {}".format(hvd.rank(), step, dur))
         else:
           # necessary to skip "no-update" steps when iter_size > 1
           def run_with_no_hooks(step_context):
             start = time.time()
             ret = step_context.session.run(fetches, feed_dict)
             dur = time.time() - start
-            print("Rank {} step {} dur {}".format(hvd.rank(), step, dur))
+            #print("Rank {} step {} dur {}".format(hvd.rank(), step, dur))
             #src_len, trg_len = ret[-2:]
             #sum_src_len = sum(src_len)
             #sum_trg_len = sum(trg_len)

@@ -5,6 +5,7 @@ from open_seq2seq.encoders import TransformerEncoder
 from open_seq2seq.decoders import TransformerDecoder
 from open_seq2seq.data.text2text.text2text import ParallelTextDataLayer
 from open_seq2seq.data.text2text.text2text_synthetic import SyntheticTextDataLayer
+from open_seq2seq.data.text2text.text2text_padded import PaddedParallelTextDataLayer
 from open_seq2seq.losses import PaddedCrossEntropyLossWithSmoothing
 from open_seq2seq.data.text2text.text2text import SpecialTextTokens
 from open_seq2seq.data.text2text.tokenizer import EOS_ID
@@ -94,14 +95,17 @@ base_params = {
 }
 
 train_params = {
-  "data_layer": ParallelTextDataLayer,
+  #"data_layer": ParallelTextDataLayer,
+  "data_layer": PaddedParallelTextDataLayer,
   #"data_layer": SyntheticTextDataLayer,
   "data_layer_params": {
     "pad_vocab_to_eight": True,
     "src_vocab_file": data_root + "m_common.vocab",
     "tgt_vocab_file": data_root + "m_common.vocab",
-    "source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok",
-    "target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
+    #"source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok",
+    "source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok.pad",
+    #"target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
+    "target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok.pad",
     "delimiter": " ",
     "shuffle": True,
     "shuffle_buffer_size": 4096,
