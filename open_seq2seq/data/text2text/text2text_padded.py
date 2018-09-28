@@ -238,7 +238,7 @@ class PaddedParallelTextDataLayer(DataLayer):
 
       while 1:
           src = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
-          yield ((src, len(src)))
+          yield (src, len(src))
 
     def generate_tgt_batch():
       avg_len = 30
