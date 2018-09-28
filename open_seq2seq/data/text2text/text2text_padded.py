@@ -283,7 +283,6 @@ class PaddedParallelTextDataLayer(DataLayer):
       _src_tgt_dataset = _src_tgt_dataset\
         .shard(num_shards=self._num_workers, index=self._worker_id)
 
-
     if self.params['shuffle']:
       bf_size = self.get_size_in_samples() if self._shuffle_buffer_size == -1 \
                                            else self._shuffle_buffer_size
@@ -291,8 +290,8 @@ class PaddedParallelTextDataLayer(DataLayer):
     else:
       _src_tgt_dataset = _src_tgt_dataset
 
-    if self.params['repeat']:
-      _src_tgt_dataset = _src_tgt_dataset.repeat()
+    #if self.params['repeat']:
+      #_src_tgt_dataset = _src_tgt_dataset.repeat()
 
     self.batched_dataset = _src_tgt_dataset.padded_batch(
       self._batch_size,
