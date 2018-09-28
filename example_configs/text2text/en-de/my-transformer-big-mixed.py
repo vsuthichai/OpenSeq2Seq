@@ -96,8 +96,8 @@ base_params = {
 
 train_params = {
   #"data_layer": ParallelTextDataLayer,
-  #"data_layer": PaddedParallelTextDataLayer,
-  "data_layer": SyntheticTextDataLayer,
+  "data_layer": PaddedParallelTextDataLayer,
+  #"data_layer": SyntheticTextDataLayer,
   "data_layer_params": {
     "pad_vocab_to_eight": True,
     "src_vocab_file": data_root + "m_common.vocab",

@@ -213,6 +213,8 @@ class PaddedParallelTextDataLayer(DataLayer):
            num_parallel_calls=self._map_parallel_calls) \
       .map(lambda tokens: (tokens, tf.size(tokens)),
            num_parallel_calls=self._map_parallel_calls)
+    print(_sources)
+    print(_targets)
     """
 
     """
@@ -230,6 +232,7 @@ class PaddedParallelTextDataLayer(DataLayer):
       .map(lambda tokens: (tokens, self._my_token_size(tokens)),
            num_parallel_calls=self._map_parallel_calls) 
     """
+
     def generate_src_batch():
       avg_len = 30
 
@@ -237,24 +240,26 @@ class PaddedParallelTextDataLayer(DataLayer):
           src = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
           yield ((src, len(src)))
 
-    def generate_trg_batch():
+    def generate_tgt_batch():
       avg_len = 30
 
       while 1:
-          trg = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.trg_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
-          yield ((trg, len(trg)))
+          tgt = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.tgt_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          yield (tgt, len(tgt))
 
-    _sources = Dataset.from_generator(
+    _sources = tf.data.Dataset.from_generator(
         generate_src_batch,
-        ((tf.int32, tf.int32)),
-        ((tf.TensorShape([None, None]), tf.TensorShape([None])))
+        (tf.int32, tf.int32),
+        (tf.TensorShape([None]), tf.TensorShape([]))
     )
+    print(_sources)
 
-    _targets = Dataset.from_generator(
-        generate_trg_batch,
-        ((tf.int32, tf.int32)),
-        ((tf.TensorShape([None, None]), tf.TensorShape([None])))
+    _targets = tf.data.Dataset.from_generator(
+        generate_tgt_batch,
+        (tf.int32, tf.int32),
+        (tf.TensorShape([None]), tf.TensorShape([]))
     )
+    print(_targets)
 
     _src_tgt_dataset = tf.data.Dataset.zip((_sources, _targets)).filter(
       lambda t1, t2: tf.logical_and(tf.less_equal(t1[1], self.max_len),
