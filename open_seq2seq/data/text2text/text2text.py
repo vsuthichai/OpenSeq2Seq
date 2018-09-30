@@ -202,9 +202,9 @@ class ParallelTextDataLayer(DataLayer):
                                     tf.less_equal(t2[1], self.max_len))
     ).cache()
 
-    if self._num_workers > 1:
-      _src_tgt_dataset = _src_tgt_dataset\
-        .shard(num_shards=self._num_workers, index=self._worker_id)
+    #if self._num_workers > 1:
+    #  _src_tgt_dataset = _src_tgt_dataset\
+    #    .shard(num_shards=self._num_workers, index=self._worker_id)
 
     if self.params['shuffle']:
       bf_size = self.get_size_in_samples() if self._shuffle_buffer_size == -1 \
