@@ -73,7 +73,7 @@ def get_regularization_loss(scope=None, name="total_regularization_loss"):
     return tf.constant(0.0)
 
 
-def reduce_gradients(grads_and_vars, on_horovod):
+def reduce_gradients(grads_and_vars, iter_size, on_horovod):
   if on_horovod:
     from horovod.tensorflow import size
     from horovod.tensorflow import allreduce
@@ -241,7 +241,7 @@ def optimize_loss(loss,
           with tf.control_dependencies([accum_op]):
             red_grad_updates = opt.apply_gradients(
                 post_process_gradients(
-                    reduce_gradients(grads_and_vars_accum, on_horovod=True),
+                    reduce_gradients(grads_and_vars_accum, iter_size, on_horovod=True),
                     lr=lr,
                     clip_gradients=clip_gradients,
                     larc_params=larc_params,
@@ -262,7 +262,7 @@ def optimize_loss(loss,
       else:
         grad_updates = opt.apply_gradients(
             post_process_gradients(
-                reduce_gradients(grads_and_vars, on_horovod=True),
+                reduce_gradients(grads_and_vars, iter_size, on_horovod=True),
                 lr=lr,
                 clip_gradients=clip_gradients,
                 larc_params=larc_params,
