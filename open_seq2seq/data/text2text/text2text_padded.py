@@ -34,7 +34,7 @@ class SpecialTextTokens(Enum):
       raise ValueError("Unknown Value in SpecialTokens")
 
 
-class ParallelTextDataLayer(DataLayer):
+class PaddedParallelTextDataLayer(DataLayer):
   @staticmethod
   def get_required_params():
     return dict(DataLayer.get_required_params(), **{
@@ -62,7 +62,7 @@ class ParallelTextDataLayer(DataLayer):
     })
 
   def __init__(self, params, model, num_workers=1, worker_id=0):
-    super(ParallelTextDataLayer, self).__init__(params, model,
+    super(PaddedParallelTextDataLayer, self).__init__(params, model,
                                                 num_workers, worker_id)
     self._batch_size = self.params['batch_size']
     self.source_file = self.params['source_file']
@@ -182,29 +182,106 @@ class ParallelTextDataLayer(DataLayer):
                                        tokens[:self.max_len - 2]] + \
                                       [SpecialTextTokens.EOS_ID.value], self._pad_lengths_to_eight), dtype="int32")
 
+  def _my_src_token_to_id(self, line):
+    tokens = line.decode("utf-8").split(self._delimiter)
+    return np.array([self.src_seq2idx.get(token, SpecialTextTokens.UNK_ID.value) for token in tokens], dtype="int32")
+
+  def _my_tgt_token_to_id(self, line):
+    tokens = line.decode("utf-8").split(self._delimiter)
+    return np.array([self.tgt_seq2idx.get(token, SpecialTextTokens.UNK_ID.value) for token in tokens], dtype="int32")
+
+  def _my_token_size(self, tokens):
+    equal = tf.equal(tokens, SpecialTextTokens.EOS_ID.value)
+    cast = tf.cast(equal, tf.int32)
+    argmax = tf.add(tf.argmax(cast, axis=0), 1)
+    cast2 = tf.cast(argmax, tf.int32)
+    x = tf.reshape(cast2, shape=[])
+    return x
+
   def build_graph(self):
-    _sources = tf.data.TextLineDataset(self.source_file)\
-      .map(lambda line: tf.py_func(func=self._src_token_to_id, inp=[line],
-                                   Tout=[tf.int32], stateful=False),
-           num_parallel_calls=self._map_parallel_calls) \
-      .map(lambda tokens: (tokens, tf.size(tokens)),
-           num_parallel_calls=self._map_parallel_calls)
+    #_sources = tf.data.TextLineDataset(self.source_file) \
+    #  .map(lambda line: tf.py_func(func=self._src_token_to_id, inp=[line],
+    #                               Tout=[tf.int32], stateful=False),
+    #       num_parallel_calls=self._map_parallel_calls) \
+    #  .map(lambda tokens: (tokens, tf.size(tokens)),
+    #       num_parallel_calls=self._map_parallel_calls)
+#
+#    _targets = tf.data.TextLineDataset(self.target_file) \
+#      .map(lambda line: tf.py_func(func=self._tgt_token_to_id, inp=[line],
+#                                   Tout=[tf.int32], stateful=False),
+#           num_parallel_calls=self._map_parallel_calls) \
+#      .map(lambda tokens: (tokens, tf.size(tokens)),
+#           num_parallel_calls=self._map_parallel_calls)
+#    print(_sources)
+#    print(_targets)
 
-    _targets = tf.data.TextLineDataset(self.target_file) \
-      .map(lambda line: tf.py_func(func=self._tgt_token_to_id, inp=[line],
-                                   Tout=[tf.int32], stateful=False),
-           num_parallel_calls=self._map_parallel_calls) \
-      .map(lambda tokens: (tokens, tf.size(tokens)),
-           num_parallel_calls=self._map_parallel_calls)
 
-    _src_tgt_dataset = tf.data.Dataset.zip((_sources, _targets)).filter(
-      lambda t1, t2: tf.logical_and(tf.less_equal(t1[1], self.max_len),
-                                    tf.less_equal(t2[1], self.max_len))
-    ).cache()
+    #_sources = tf.data.TextLineDataset(self.source_file) \
+      #.map(lambda line: tf.py_func(func=self._my_src_token_to_id, inp=[line],
+    #                               Tout=[tf.int32], stateful=False),
+    #       num_parallel_calls=self._map_parallel_calls) \
+    #  .map(lambda tokens: (tokens, self._my_token_size(tokens)),
+    #       num_parallel_calls=self._map_parallel_calls) 
+#
+#    _targets = tf.data.TextLineDataset(self.source_file) \
+#      .map(lambda line: tf.py_func(func=self._my_tgt_token_to_id, inp=[line],
+#                                   Tout=[tf.int32], stateful=False),
+#           num_parallel_calls=self._map_parallel_calls) \
+#      .map(lambda tokens: (tokens, self._my_token_size(tokens)),
+#           num_parallel_calls=self._map_parallel_calls) 
 
-    #if self._num_workers > 1:
-    #  _src_tgt_dataset = _src_tgt_dataset\
-    #    .shard(num_shards=self._num_workers, index=self._worker_id)
+
+    #def generate_src_batch():
+    #  avg_len = 30
+#
+      #while 1:
+          #src = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          #yield (src, len(src))
+#
+    #def generate_tgt_batch():
+      #avg_len = 30
+#
+      #while 1:
+          #tgt = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.tgt_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          #yield (tgt, len(tgt))
+#
+    #_sources = tf.data.Dataset.from_generator(
+        #generate_src_batch,
+        #(tf.int32, tf.int32),
+        #(tf.TensorShape([None]), tf.TensorShape([]))
+    #)
+    #print(_sources)
+#
+    #_targets = tf.data.Dataset.from_generator(
+        #generate_tgt_batch,
+        #(tf.int32, tf.int32),
+        #(tf.TensorShape([None]), tf.TensorShape([]))
+    #)
+    #print(_targets)
+
+    #_src_tgt_dataset = tf.data.Dataset.zip((_sources, _targets)).filter(
+    #  lambda t1, t2: tf.logical_and(tf.less_equal(t1[1], self.max_len),
+    #                                tf.less_equal(t2[1], self.max_len))
+    #).cache()
+
+    def generate_sample():
+      avg_len = 30
+
+      while 1:
+          src = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.src_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          tgt = [SpecialTextTokens.S_ID.value] + np.random.randint(low=4, high=len(self.tgt_seq2idx) - 1, size=(avg_len,)) + [SpecialTextTokens.EOS_ID.value]
+          yield ((src, len(src)), (tgt, len(tgt)))
+
+    _src_tgt_dataset = tf.data.Dataset.from_generator(
+        generate_sample,
+        ((tf.int32, tf.int32), (tf.int32, tf.int32)),
+        ((tf.TensorShape([None]), tf.TensorShape([])), (tf.TensorShape([None]), tf.TensorShape([])))
+    )
+    print(_src_tgt_dataset)
+
+    if self._num_workers > 1:
+      _src_tgt_dataset = _src_tgt_dataset\
+        .shard(num_shards=self._num_workers, index=self._worker_id)
 
     if self.params['shuffle']:
       bf_size = self.get_size_in_samples() if self._shuffle_buffer_size == -1 \
@@ -213,8 +290,8 @@ class ParallelTextDataLayer(DataLayer):
     else:
       _src_tgt_dataset = _src_tgt_dataset
 
-    if self.params['repeat']:
-      _src_tgt_dataset = _src_tgt_dataset.repeat()
+    #if self.params['repeat']:
+      #_src_tgt_dataset = _src_tgt_dataset.repeat()
 
     self.batched_dataset = _src_tgt_dataset.padded_batch(
       self._batch_size,

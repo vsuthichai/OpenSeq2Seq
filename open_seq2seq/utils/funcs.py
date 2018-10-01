@@ -158,10 +158,32 @@ def train(train_model, eval_model=None, debug_port=None):
         if coord['msg'] == 'sync':
           if step >= bench_start:
             num_bench_updates += 1
+          start = time.time()
+          #fetches_vals = sess.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
           fetches_vals = sess.run(fetches, feed_dict)
+          dur = time.time() - start
+          #print("Rank {} step {} dur {}".format(hvd.rank(), step, dur))
         else:
           def run_with_no_hooks(step_context):
+            start = time.time()
             ret = step_context.session.run(fetches, feed_dict)
+            dur = time.time() - start
+            #print("Rank {} step {} dur {}".format(hvd.rank(), step, dur))
+            #src_len, trg_len = ret[-2:]
+            #sum_src_len = sum(src_len)
+            #sum_trg_len = sum(trg_len)
+            #if step > 96:
+              #data.append((dur, sum_src_len, sum_trg_len))
+              #print("Rank {} step {} duration {} sum_src_len {} sum_trg_len {}".format(hvd.rank(), step, dur, sum_src_len, sum_trg_len))
+            #if step > 96 and step % 31 == 0:
+              #print("Rank {} step {} min_duration {}".format(hvd.rank(), step, min([ i[0] for i in data ])))
+              #print("Rank {} step {} min_src_length {}".format(hvd.rank(), step, min([ i[1] for i in data ])))
+              #print("Rank {} step {} min_trg_length {}".format(hvd.rank(), step, min([ i[2] for i in data ])))
+              #print("Rank {} step {} max_duration {}".format(hvd.rank(), step, max([ i[0] for i in data ])))
+              #print("Rank {} step {} max_src_length {}".format(hvd.rank(), step, max([ i[1] for i in data ])))
+              #print("Rank {} step {} max_trg_length {}".format(hvd.rank(), step, max([ i[2] for i in data ])))
+              #print("Rank {} step {} avg_duration {}".format(hvd.rank(), step, sum([ i[0] for i in data ])/len(data)))
+            #return step_context.session.run(fetches, feed_dict, options=run_options, run_metadata=run_metadata)
             return ret
           fetches_vals = sess.run_step_fn(run_with_no_hooks)
        

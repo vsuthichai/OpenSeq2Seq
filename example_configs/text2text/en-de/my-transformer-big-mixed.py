@@ -3,8 +3,9 @@ from __future__ import absolute_import, division, print_function
 from open_seq2seq.models import Text2Text
 from open_seq2seq.encoders import TransformerEncoder
 from open_seq2seq.decoders import TransformerDecoder
-from open_seq2seq.data.text2text.text2text import ParallelTextDataLayer
+from open_seq2seq.data.text2text.text2text_vs import ParallelTextDataLayer
 from open_seq2seq.data.text2text.text2text_synthetic import SyntheticTextDataLayer
+from open_seq2seq.data.text2text.text2text_padded import PaddedParallelTextDataLayer
 from open_seq2seq.losses import PaddedCrossEntropyLossWithSmoothing
 from open_seq2seq.data.text2text.text2text import SpecialTextTokens
 from open_seq2seq.data.text2text.tokenizer import EOS_ID
@@ -37,7 +38,7 @@ base_params = {
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
-  "iter_size": 64,
+  "iter_size": 16,
 
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
@@ -95,16 +96,19 @@ base_params = {
 
 train_params = {
   "data_layer": ParallelTextDataLayer,
+  #"data_layer": PaddedParallelTextDataLayer,
   #"data_layer": SyntheticTextDataLayer,
   "data_layer_params": {
     "pad_vocab_to_eight": True,
     "src_vocab_file": data_root + "m_common.vocab",
     "tgt_vocab_file": data_root + "m_common.vocab",
     "source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok",
+    #"source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok.pad",
     "target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
+    #"target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok.pad",
     "delimiter": " ",
     "shuffle": True,
-    "shuffle_buffer_size": 4096,
+    "shuffle_buffer_size": 25000,
     #"shuffle_buffer_size": 2048,
     "repeat": True,
     "map_parallel_calls": 64,
