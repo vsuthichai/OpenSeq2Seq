@@ -51,7 +51,8 @@ base_params = {
   "lr_policy_params": {
     "learning_rate": 2.0,
     #"warmup_steps": 8000,
-    "warmup_steps": 30,
+    #"warmup_steps": 30,
+    "warmup_steps": 4000,
     "d_model": d_model,
   },
 
@@ -63,7 +64,7 @@ base_params = {
     "num_heads": 16,
     "attention_dropout": 0.1,
     "filter_size": 4 * d_model,
-    "relu_dropout": 0.1,
+    "relu_dropout": 0.3,
     #"layer_postprocess_dropout": 0.1,
     "layer_postprocess_dropout": 0.3,
     "pad_embeddings_2_eight": True,
@@ -71,13 +72,13 @@ base_params = {
 
   "decoder": TransformerDecoder,
   "decoder_params": {
-    "layer_postprocess_dropout": 0.1,
+    "layer_postprocess_dropout": 0.3,
     "num_hidden_layers": num_layers,
     "hidden_size": d_model,
     #"num_heads": 8,
     "num_heads": 16,
     "attention_dropout": 0.1,
-    "relu_dropout": 0.1,
+    "relu_dropout": 0.3,
     "filter_size": 4 * d_model,
     "beam_size": 4,
     "alpha": 0.6,
@@ -111,7 +112,7 @@ train_params = {
     "shuffle_buffer_size": 25000,
     #"shuffle_buffer_size": 2048,
     "repeat": True,
-    "map_parallel_calls": 64,
+    "map_parallel_calls": 16
     "max_length": 56,
   },
 }
