@@ -210,7 +210,7 @@ def optimize_loss(loss,
     )
 
     if on_horovod:
-      if iter_size >= 1:
+      if iter_size > 1:
         grads_and_vars_accum = []
         accum_ops = []
         for grad, var in grads_and_vars:
