@@ -112,7 +112,7 @@ train_params = {
     "shuffle_buffer_size": 25000,
     #"shuffle_buffer_size": 2048,
     "repeat": True,
-    "map_parallel_calls": 16
+    "map_parallel_calls": 16,
     "max_length": 56,
   },
 }
