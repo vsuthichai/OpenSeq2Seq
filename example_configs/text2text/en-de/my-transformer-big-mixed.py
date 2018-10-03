@@ -28,7 +28,7 @@ base_params = {
   "use_horovod": True,
   "num_gpus": 1, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": 256,  # this size is in sentence pairs, reduce it if you get OOM
-  "max_steps": 4005,
+  "max_steps": 100000,
   "save_summaries_steps": 20,
   "print_loss_steps": 20,
   "print_samples_steps": None,
