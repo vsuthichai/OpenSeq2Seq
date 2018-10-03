@@ -30,10 +30,10 @@ base_params = {
   "batch_size_per_gpu": 256,  # this size is in sentence pairs, reduce it if you get OOM
   "max_steps": 300000,
   "save_summaries_steps": 100,
-  #"print_loss_steps": 100,
-  "print_samples_steps": 1,
-  "eval_steps": 4001,
-  #"save_checkpoint_steps": 299998,
+  "print_loss_steps": 10,
+  "print_samples_steps": None,
+  "eval_steps": 250,
+  "save_checkpoint_steps": 5,
   "logdir": "Transformer-FP32-H-256",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
