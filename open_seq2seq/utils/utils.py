@@ -147,7 +147,10 @@ def iterate_data(model, sess, compute_loss, mode, verbose, num_steps=None):
       for worker_id in range(model.num_gpus):
         if total_samples[worker_id] < dl_sizes[worker_id]:
           fetches_to_run[worker_id] = fetches[worker_id]
-      fetches_vals = sess.run(fetches_to_run)
+      try:
+        fetches_vals = sess.run(fetches_to_run)
+      except tf.errors.OutOfRangeError:
+        pass
     else:
       # if size is not defined we have to process fetches sequentially, so not
       # to lose data when exception is thrown on one data layer
