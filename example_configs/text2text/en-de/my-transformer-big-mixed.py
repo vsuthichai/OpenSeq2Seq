@@ -32,7 +32,7 @@ base_params = {
   "save_summaries_steps": 20,
   "print_loss_steps": 20,
   "print_samples_steps": None,
-  "eval_steps": 100,
+  "eval_steps": 250,
   "save_checkpoint_steps": 1000,
   "logdir": "Transformer-FP32-H-256",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
