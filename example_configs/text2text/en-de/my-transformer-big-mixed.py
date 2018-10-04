@@ -33,7 +33,7 @@ base_params = {
   "print_loss_steps": 20,
   "print_samples_steps": None,
   "eval_steps": 100,
-  "save_checkpoint_steps": 250,
+  "save_checkpoint_steps": 1000,
   "logdir": "Transformer-FP32-H-256",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
@@ -49,7 +49,7 @@ base_params = {
 
   "lr_policy": transformer_policy,
   "lr_policy_params": {
-    "learning_rate": 3.0,
+    "learning_rate": 4.0,
     #"warmup_steps": 8000,
     #"warmup_steps": 30,
     "warmup_steps": 4000,
