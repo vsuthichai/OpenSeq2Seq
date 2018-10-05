@@ -30,7 +30,7 @@ base_params = {
   "batch_size_per_gpu": 256,  # this size is in sentence pairs, reduce it if you get OOM
   "max_steps": 100000,
   "save_summaries_steps": 20,
-  "print_loss_steps": 20,
+  "print_loss_steps": 1,
   "print_samples_steps": None,
   "eval_steps": 250,
   "save_checkpoint_steps": 1000,
@@ -50,7 +50,7 @@ base_params = {
 
   "lr_policy": transformer_policy,
   "lr_policy_params": {
-    "learning_rate": 2.0,
+    "learning_rate": 4.0,
     #"warmup_steps": 8000,
     #"warmup_steps": 30,
     "warmup_steps": 4000,
