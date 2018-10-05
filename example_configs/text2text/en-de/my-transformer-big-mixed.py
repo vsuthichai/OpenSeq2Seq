@@ -39,6 +39,7 @@ base_params = {
   "dtype": "mixed",
   "loss_scaling": "Backoff",
   "iter_size": 2,
+  "max_grad_norm": 1.0,
 
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
@@ -52,7 +53,7 @@ base_params = {
     "learning_rate": 2.0,
     #"warmup_steps": 8000,
     #"warmup_steps": 30,
-    "warmup_steps": 3000,
+    "warmup_steps": 4000,
     "d_model": d_model,
   },
 
