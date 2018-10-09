@@ -98,8 +98,8 @@ base_params = {
 }
 
 train_params = {
-  "data_layer": TransformerDataLayer,
-  #"data_layer": ParallelTextDataLayer,
+  #"data_layer": TransformerDataLayer,
+  "data_layer": ParallelTextDataLayer,
   #"data_layer": PaddedParallelTextDataLayer,
   #"data_layer": SyntheticTextDataLayer,
   "data_layer_params": {
@@ -122,8 +122,8 @@ train_params = {
 
 eval_params = {
   "batch_size_per_gpu": 16,
-  "data_layer": TransformerDataLayer,
-  #"data_layer": ParallelTextDataLayer,
+  #"data_layer": TransformerDataLayer,
+  "data_layer": ParallelTextDataLayer,
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
