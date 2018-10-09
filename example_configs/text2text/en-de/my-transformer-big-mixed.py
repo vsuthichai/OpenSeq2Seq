@@ -38,9 +38,9 @@ base_params = {
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
-  "iter_size": 1,
+  "iter_size": 2,
   #"max_grad_norm": 1.0,
-  "num_epochs": 30,
+  "num_epochs": 60,
 
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
@@ -98,7 +98,8 @@ base_params = {
 }
 
 train_params = {
-  "data_layer": ParallelTextDataLayer,
+  "data_layer": TransformerDataLayer,
+  #"data_layer": ParallelTextDataLayer,
   #"data_layer": PaddedParallelTextDataLayer,
   #"data_layer": SyntheticTextDataLayer,
   "data_layer_params": {
@@ -121,7 +122,8 @@ train_params = {
 
 eval_params = {
   "batch_size_per_gpu": 16,
-  "data_layer": ParallelTextDataLayer,
+  "data_layer": TransformerDataLayer,
+  #"data_layer": ParallelTextDataLayer,
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
