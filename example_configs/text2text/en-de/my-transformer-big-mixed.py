@@ -38,7 +38,7 @@ base_params = {
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
-  "iter_size": 2,
+  "iter_size": 1,
   #"max_grad_norm": 1.0,
   "num_epochs": 30,
 
@@ -140,8 +140,8 @@ infer_params = {
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
-    "source_file": data_root+"wmt14-en-de.src.BPE_common.32K.tok",
-    "target_file": data_root+"wmt14-en-de.src.BPE_common.32K.tok",
+    "source_file": data_root+"wmt14-full-en-de.src.BPE_common.32K.tok",
+    "target_file": data_root+"wmt14-full-en-de.src.BPE_common.32K.tok",
     "delimiter": " ",
     "shuffle": False,
     "repeat": False,
