@@ -40,6 +40,7 @@ base_params = {
   "loss_scaling": "Backoff",
   "iter_size": 1,
   #"max_grad_norm": 1.0,
+  "num_epochs": 30,
 
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
@@ -53,7 +54,7 @@ base_params = {
     "learning_rate": 2.0,
     #"warmup_steps": 8000,
     #"warmup_steps": 30,
-    "warmup_steps": 4000,
+    "warmup_steps": 5000,
     "d_model": d_model,
   },
 
