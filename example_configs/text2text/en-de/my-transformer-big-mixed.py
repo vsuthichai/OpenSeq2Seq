@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 from open_seq2seq.models import Text2Text
 from open_seq2seq.encoders import TransformerEncoder
 from open_seq2seq.decoders import TransformerDecoder
-from open_seq2seq.data.text2text.text2text_vs import ParallelTextDataLayer
+from open_seq2seq.data.text2text.text2text_vs import ParallelTextDataLayer, TransformerDataLayer
 from open_seq2seq.data.text2text.text2text_synthetic import SyntheticTextDataLayer
 from open_seq2seq.data.text2text.text2text_padded import PaddedParallelTextDataLayer
 from open_seq2seq.losses import PaddedCrossEntropyLossWithSmoothing
