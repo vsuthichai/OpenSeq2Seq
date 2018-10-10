@@ -78,8 +78,8 @@ def _parse_example(serialized_example, pad_2_eight=False):
       "targets": tf.VarLenFeature(tf.int64)
   }
   parsed = tf.parse_single_example(serialized_example, data_fields)
-  inputs = tf.sparse_tensor_to_dense(parsed["inputs"])
-  targets = tf.sparse_tensor_to_dense(parsed["targets"])
+  inputs = tf.cast(tf.sparse_tensor_to_dense(parsed["inputs"]), tf.int32)
+  targets = tf.cast(tf.sparse_tensor_to_dense(parsed["targets"]), tf.int32)
 
   if pad_2_eight:
     inputs = tf.cond(

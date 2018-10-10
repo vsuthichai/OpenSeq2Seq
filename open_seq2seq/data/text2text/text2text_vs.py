@@ -339,6 +339,7 @@ class TransformerDataLayer(DataLayer):
     self._input_tensors = {}
     self._iterator = None
     self.batched_dataset = None
+    self.dataset_size = self.count_size_in_samples()
 
   def build_graph(self):
     file_pattern = os.path.join(self.params['data_dir'],
@@ -366,6 +367,8 @@ class TransformerDataLayer(DataLayer):
     else:
       self._input_tensors['source_tensors'] = [x, len_x]
 
+    #print(self._input_tensors)
+
   @property
   def iterator(self):
     return self._iterator
@@ -373,3 +376,28 @@ class TransformerDataLayer(DataLayer):
   @property
   def input_tensors(self):
     return self._input_tensors
+
+  def count_size_in_samples(self):
+    return 148019989
+
+    data_fields = {
+        "inputs": tf.VarLenFeature(tf.int64),
+        "targets": tf.VarLenFeature(tf.int64)
+    }
+
+    count = 0
+    data_dir = self.params['data_dir']
+
+    for filename in os.listdir(data_dir):
+        for record in tf.python_io.tf_record_iterator(os.path.join(data_dir, filename)):
+            example = tf.train.Example()
+            example.ParseFromString(record)
+            input_length = example.features.feature['inputs'].int64_list.value
+            target_length = example.features.feature['targets'].int64_list.value
+            count += max(len(input_length), len(target_length))
+    print(count)
+    return count
+
+  def get_size_in_samples(self):
+    return self.dataset_size
+

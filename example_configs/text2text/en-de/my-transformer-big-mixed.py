@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function
 from open_seq2seq.models import Text2Text
 from open_seq2seq.encoders import TransformerEncoder
 from open_seq2seq.decoders import TransformerDecoder
-from open_seq2seq.data.text2text.text2text_vs import ParallelTextDataLayer, TransformerDataLayer
+from open_seq2seq.data.text2text.text2text_vs import TransformerDataLayer
+from open_seq2seq.data.text2text.text2text_vs import ParallelTextDataLayer
 from open_seq2seq.data.text2text.text2text_synthetic import SyntheticTextDataLayer
 from open_seq2seq.data.text2text.text2text_padded import PaddedParallelTextDataLayer
 from open_seq2seq.losses import PaddedCrossEntropyLossWithSmoothing
@@ -98,25 +99,35 @@ base_params = {
 }
 
 train_params = {
-  #"data_layer": TransformerDataLayer,
-  "data_layer": ParallelTextDataLayer,
-  #"data_layer": PaddedParallelTextDataLayer,
-  #"data_layer": SyntheticTextDataLayer,
+  #"data_layer": ParallelTextDataLayer,
+  #"data_layer_params": {
+    #"pad_vocab_to_eight": True,
+    #"src_vocab_file": data_root + "m_common.vocab",
+    #"tgt_vocab_file": data_root + "m_common.vocab",
+    #"source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok",
+    #"target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
+    #"delimiter": " ",
+    #"shuffle": True,
+    #"shuffle_buffer_size": 25000,
+    #"shuffle_buffer_size": 4096,
+    #"repeat": True,
+    #"map_parallel_calls": 64,
+    #"max_length": 56,
+  #},
+
+  "data_layer": TransformerDataLayer,
   "data_layer_params": {
-    "pad_vocab_to_eight": True,
+    "data_dir": data_root + "tfrecord/",
+    "file_pattern": "wmt16-en-de*",
     "src_vocab_file": data_root + "m_common.vocab",
     "tgt_vocab_file": data_root + "m_common.vocab",
-    "source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok",
-    #"source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok.pad",
-    "target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
-    #"target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok.pad",
-    "delimiter": " ",
-    "shuffle": True,
-    #"shuffle_buffer_size": 25000,
-    "shuffle_buffer_size": 4096,
-    "repeat": True,
-    "map_parallel_calls": 64,
+    "batch_size": 4096,
     "max_length": 56,
+    "shuffle": True,
+    "delimiter": ' ',
+    "batch_in_tokens": True,
+    "num_cpu_cores": 64,
+    "repeat": True,
   },
 }
 
