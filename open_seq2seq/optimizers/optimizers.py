@@ -85,14 +85,15 @@ def reduce_gradients(grads_and_vars, on_horovod, model=None):
             if isinstance(grad, tf.IndexedSlices):
               from open_seq2seq.models import Text2Text
               from open_seq2seq.decoders import TransformerDecoder
-              if isinstance(model, Text2Text) and isinstance(model.decoder, TransformerDecoder):
+              if isinstance(model, Text2Text) and \
+                 isinstance(model.decoder, TransformerDecoder):
                 from tensorflow.python.training.optimizer import _deduplicate_indexed_slices
                 summed_values, unique_indices = _deduplicate_indexed_slices(
-                  values=grad.values, indices=grad.indices)
+                    values=grad.values, indices=grad.indices)
                 gradient_no_duplicate_indices = tf.IndexedSlices(
-                  indices=unique_indices,
-                  values=summed_values,
-                  dense_shape=grad.dense_shape)
+                    indices=unique_indices,
+                    values=summed_values,
+                    dense_shape=grad.dense_shape)
                 grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
             avg_grad = allreduce(grad)
             averaged_grads_and_vars.append((avg_grad, var))
