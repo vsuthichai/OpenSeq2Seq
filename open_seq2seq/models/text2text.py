@@ -130,13 +130,14 @@ class Text2Text(EncoderDecoderModel):
     y_sample = y[0]
     len_y_sample = len_y[0]
 
-    #print("src len {} sum {}".format(len_x, sum(len_x)))
-    #print("trg len {} sum {}".format(len_y, sum(len_y)))
-    #print(x)
-    #print(len_x)
-    #print(y)
-    #print(len_y)
-
+    print("src len {} sum {}".format(len_x, sum(len_x)))
+    print("trg len {} sum {}".format(len_y, sum(len_y)))
+    print(x)
+    print(len_x)
+    print(x.shape)
+    print(y)
+    print(len_y)
+    print(y.shape)
     #print(y_sample)
     #print(len_y_sample)
     #print(y_sample[:len_y_sample])
