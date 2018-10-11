@@ -97,7 +97,7 @@ train_params = {
     "target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
     "delimiter": " ",
     "shuffle": True,
-    "shuffle_buffer_size": 25000,
+    "shuffle_buffer_size": 1024,
     "repeat": True,
     "map_parallel_calls": 16,
     "max_length": 56,
