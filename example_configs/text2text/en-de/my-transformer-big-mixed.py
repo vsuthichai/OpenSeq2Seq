@@ -23,30 +23,30 @@ d_model = 1024
 num_layers = 6
 
 # REPLACE THIS TO THE PATH WITH YOUR WMT DATA
-data_root = "scripts/alldata_en_dt/"
+data_root = "scripts/fb_wmt16_en_de_bpe32k/"
 
 base_params = {
   "use_horovod": True,
   "num_gpus": 1, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": 256,  # this size is in sentence pairs, reduce it if you get OOM
   #"max_steps": 100000,
-  "save_summaries_steps": 20,
-  "print_loss_steps": 10,
+  "save_summaries_steps": 25,
+  "print_loss_steps": 1,
   "print_samples_steps": None,
-  "eval_steps": 250,
-  "save_checkpoint_steps": 1000,
+  "eval_steps": 500,
+  "save_checkpoint_steps": 10000,
   "logdir": "Transformer-FP32-H-256",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
   "iter_size": 1,
   #"max_grad_norm": 1.0,
-  "num_epochs": 60,
+  "num_epochs": 30,
 
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
     "beta1": 0.9,
-    "beta2": 0.997,
+    "beta2": 0.98,
     "epsilon": 1e-09,
   },
 
@@ -55,7 +55,7 @@ base_params = {
     "learning_rate": 2.0,
     #"warmup_steps": 8000,
     #"warmup_steps": 30,
-    "warmup_steps": 5000,
+    "warmup_steps": 4000,
     "d_model": d_model,
   },
 
@@ -98,48 +98,57 @@ base_params = {
   }
 }
 
+'''
 train_params = {
-  #"data_layer": ParallelTextDataLayer,
-  #"data_layer_params": {
-    #"pad_vocab_to_eight": True,
-    #"src_vocab_file": data_root + "m_common.vocab",
-    #"tgt_vocab_file": data_root + "m_common.vocab",
+  #"data_layer": SyntheticTextDataLayer,
+  "data_layer": ParallelTextDataLayer,
+  "data_layer_params": {
+    "pad_vocab_to_eight": True,
+    "src_vocab_file": data_root + "m_common.vocab",
+    "tgt_vocab_file": data_root + "m_common.vocab",
     #"source_file": data_root + "train.clean.en.shuffled.BPE_common.32K.tok",
+    "source_file": data_root + "train.en-de.en",
     #"target_file": data_root + "train.clean.de.shuffled.BPE_common.32K.tok",
-    #"delimiter": " ",
-    #"shuffle": True,
-    #"shuffle_buffer_size": 25000,
+    "target_file": data_root + "train.en-de.de",
+    "delimiter": " ",
+    "shuffle": True,
+    "shuffle_buffer_size": 25000,
     #"shuffle_buffer_size": 4096,
-    #"repeat": True,
-    #"map_parallel_calls": 64,
-    #"max_length": 56,
-  #},
+    "repeat": True,
+    "map_parallel_calls": 64,
+    "max_length": 56,
+  }
+}
+'''
 
+train_params = {
   "data_layer": TransformerDataLayer,
   "data_layer_params": {
     "data_dir": data_root + "tfrecord/",
     "file_pattern": "wmt16-en-de*",
     "src_vocab_file": data_root + "m_common.vocab",
     "tgt_vocab_file": data_root + "m_common.vocab",
-    "batch_size": 4096,
-    "max_length": 56,
+    "batch_size": 3584,
+    "max_length": 256,
     "shuffle": True,
     "delimiter": ' ',
     "batch_in_tokens": True,
     "num_cpu_cores": 64,
-    "repeat": True,
+    "repeat": 30,
   },
 }
 
 eval_params = {
-  "batch_size_per_gpu": 16,
+  "batch_size_per_gpu": 64,
   #"data_layer": TransformerDataLayer,
   "data_layer": ParallelTextDataLayer,
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
-    "source_file": data_root+"wmt13-en-de.src.BPE_common.32K.tok",
-    "target_file": data_root+"wmt13-en-de.ref.BPE_common.32K.tok",
+    #"source_file": data_root+"wmt13-en-de.src.BPE_common.32K.tok",
+    "source_file": data_root+"valid.en-de.en",
+    #"target_file": data_root+"wmt13-en-de.ref.BPE_common.32K.tok",
+    "target_file": data_root+"valid.en-de.de",
     "delimiter": " ",
     "shuffle": False,
     "repeat": False,
