@@ -8,7 +8,7 @@ import tensorflow as tf
 from six.moves import range
 
 from open_seq2seq.parts.transformer import utils, attention_layer, \
-                                           ffn_layer, beam_search
+                                           ffn_layer_vs, beam_search
 from open_seq2seq.parts.transformer.common import PrePostProcessingWrapper, \
                                                   LayerNormalization
 from .decoder import Decoder
@@ -99,7 +99,7 @@ class TransformerDecoder(Decoder):
               self.params["attention_dropout"],
               self.mode == "train",
           )
-          feed_forward_network = ffn_layer.FeedFowardNetwork(
+          feed_forward_network = ffn_layer_vs.FeedFowardNetwork(
               self.params["hidden_size"], self.params["filter_size"],
               self.params["relu_dropout"], self.mode == "train",
           )

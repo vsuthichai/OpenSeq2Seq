@@ -72,11 +72,12 @@ def main(args, base_config, base_model, config_model, hvd):
 @contextlib.contextmanager
 def profile_context(profile, hvd):
   if profile:
-    with tf.contrib.tfprof.ProfileContext(
-        "os2s_{}".format(hvd.rank()), trace_steps=range(100, 120), dump_steps=range(100, 120)) as pctx:
-      opts = tf.profiler.ProfileOptionBuilder.time_and_memory()
-      pctx.add_auto_profiling("op", opts, range(100, 120))
-      #pctx.add_auto_profiling("scope", opts, [15])
+    #with tf.contrib.tfprof.ProfileContext(
+        #"os2s_{}".format(hvd.rank()), trace_steps=range(0, 20), dump_steps=range(0, 20)) as pctx:
+        #"os2s_profile", trace_steps=range(0, 0), dump_steps=range(0, 0)) as pctx:
+      #opts = tf.profiler.ProfileOptionBuilder.time_and_memory()
+      #pctx.add_auto_profiling("op", opts, range(0, 20))
+      #pctx.add_auto_profiling("scope", opts, range(0, 20))
       yield
   else:
     yield

@@ -39,7 +39,7 @@ base_params = {
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
-  "iter_size": 1,
+  "iter_size": 16,
   #"max_grad_norm": 1.0,
   "num_epochs": 30,
 
