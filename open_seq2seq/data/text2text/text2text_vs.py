@@ -107,6 +107,8 @@ class ParallelTextDataLayer(DataLayer):
       self.tgt_vocab_file, min_idx=0 if special_tokens_already_in_vocab
       else SpecialTextTokens.UNK_ID.value + 1)
 
+    print("HEY!!!!")
+    print(self.tgt_seq2idx)
     if not special_tokens_already_in_vocab:
       # manually add special tokens
       # unknown symbol
@@ -378,7 +380,7 @@ class TransformerDataLayer(DataLayer):
     return self._input_tensors
 
   def count_size_in_samples(self):
-    return 148019989
+    return 144333149
 
     data_fields = {
         "inputs": tf.VarLenFeature(tf.int64),
@@ -394,7 +396,7 @@ class TransformerDataLayer(DataLayer):
             example.ParseFromString(record)
             input_length = example.features.feature['inputs'].int64_list.value
             target_length = example.features.feature['targets'].int64_list.value
-            count += max(len(input_length), len(target_length))
+            count += max(len(input_length) - 2, len(target_length) - 2)
     print(count)
     return count
 

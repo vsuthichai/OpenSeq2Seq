@@ -240,7 +240,7 @@ class SyntheticTextDataLayer(DataLayer):
       generate_batch,
       ((tf.int32, tf.int32), (tf.int32, tf.int32)),
       ((tf.TensorShape([None, None]), tf.TensorShape([None])), (tf.TensorShape([None, None]), tf.TensorShape([None])))
-    )
+    ).prefetch(100)
     self._iterator = dataset.make_initializable_iterator()
     ((x, x_length), (y, y_length)) = self.iterator.get_next()
     self._input_tensors['source_tensors'] = [x, x_length]
