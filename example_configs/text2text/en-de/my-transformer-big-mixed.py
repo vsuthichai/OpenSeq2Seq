@@ -133,7 +133,7 @@ train_params = {
     "shuffle": True,
     "delimiter": ' ',
     "batch_in_tokens": True,
-    "num_cpu_cores": 64,
+    "num_cpu_cores": 16,
     "repeat": 30,
   },
 }
