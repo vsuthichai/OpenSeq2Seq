@@ -77,6 +77,7 @@ def reduce_gradients(grads_and_vars, on_horovod):
   if on_horovod:
     from horovod.tensorflow import size
     from horovod.tensorflow import allreduce
+    from horovod.tensorflow import Compression
     from tensorflow.python.training.optimizer import _deduplicate_indexed_slices
 
     if size() > 1:
@@ -102,7 +103,7 @@ def reduce_gradients(grads_and_vars, on_horovod):
                 values=summed_values,
                 dense_shape=grad.dense_shape)
               _grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
-            avg_grad = allreduce(_grad)
+            avg_grad = allreduce(_grad, compression=Compression.fp16)
             averaged_grads_and_vars.append((avg_grad, var))
           else:
             averaged_grads_and_vars.append((None, var))
