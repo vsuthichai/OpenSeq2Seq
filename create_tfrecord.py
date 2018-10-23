@@ -11,11 +11,11 @@ class SpecialTextTokens(Enum):
   OUT_OF_BUCKET = 1234567890
   END_OF_CHOICE = -100
 
-def token_to_id(vocab_dict, line, delimiter, max_len):
+def token_to_id(vocab_dict, line, delimiter):
     tokens = line.split(delimiter)
     #print(tokens)
     return [SpecialTextTokens.S_ID.value] + \
-           [vocab_dict.get(token, SpecialTextTokens.UNK_ID.value) for token in tokens[:max_len-2]] + \
+           [vocab_dict.get(token, SpecialTextTokens.UNK_ID.value) for token in tokens] + \
            [SpecialTextTokens.EOS_ID.value]
 
 def load_pre_existing_vocabulary(path, min_idx=0, read_chars=False):
@@ -59,14 +59,14 @@ def textline_generator(filename):
 def create_tfrecords(src_file, trg_file, vocab_dict):
     src_generator = textline_generator(src_file)
     ref_generator = textline_generator(trg_file)
-    samples_per_file = 50000
+    samples_per_file = 45010
     # ~/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord
 
     writer = None
     file_count = 0
     for i, sample in enumerate(zip(src_generator, ref_generator)):
-        src_sample = token_to_id(vocab_dict, sample[0], ' ', 56)
-        ref_sample = token_to_id(vocab_dict, sample[1], ' ', 56)
+        src_sample = token_to_id(vocab_dict, sample[0], ' ')
+        ref_sample = token_to_id(vocab_dict, sample[1], ' ')
         feature = {
             'inputs': tf.train.Feature(int64_list=tf.train.Int64List(value=src_sample)),
             'targets': tf.train.Feature(int64_list=tf.train.Int64List(value=ref_sample))
@@ -74,11 +74,13 @@ def create_tfrecords(src_file, trg_file, vocab_dict):
         example = tf.train.Example(features=tf.train.Features(feature=feature))
         
         if writer == None:
-            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
+            #writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
+            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/fb_wmt16_en_de_bpe32k/tfrecord/wmt16-en-de.%03d" % file_count)
             file_count += 1
         elif i % samples_per_file == 0:
             writer.close()
-            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
+            #writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
+            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/fb_wmt16_en_de_bpe32k/tfrecord/wmt16-en-de.%03d" % file_count)
             file_count += 1
 
         writer.write(example.SerializeToString())
@@ -91,8 +93,6 @@ def parse_arguments():
     parser.add_argument('--vocab_file', help="vocab_file", type=str)
     parser.add_argument('--src_file', help="source language dataset", type=str, required=True)
     parser.add_argument('--ref_file', help="reference language dataset", type=str, required=True)
-    parser.add_argument('--max_length', help="max_length", default=56)
-    parser.add_argument('--tf_record_file', help="max_length", default="tfrecords")
     args = parser.parse_args()
 
     return args

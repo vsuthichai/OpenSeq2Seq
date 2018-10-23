@@ -30,7 +30,7 @@ base_params = {
   "num_gpus": 1, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": 256,  # this size is in sentence pairs, reduce it if you get OOM
   #"max_steps": 100000,
-  "save_summaries_steps": 25,
+  "save_summaries_steps": 10,
   "print_loss_steps": 1,
   "print_samples_steps": None,
   "eval_steps": 500,
@@ -39,7 +39,7 @@ base_params = {
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
-  "iter_size": 16,
+  "iter_size": 1,
   #"max_grad_norm": 1.0,
   "num_epochs": 30,
 
@@ -162,8 +162,10 @@ infer_params = {
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
-    "source_file": data_root+"wmt14-full-en-de.src.BPE_common.32K.tok",
-    "target_file": data_root+"wmt14-full-en-de.src.BPE_common.32K.tok",
+    #"source_file": data_root+"wmt14-full-en-de.src.BPE_common.32K.tok",
+    "source_file": data_root+"test.en-de.en",
+    #"target_file": data_root+"wmt14-full-en-de.src.BPE_common.32K.tok",
+    "target_file": data_root+"test.en-de.de",
     "delimiter": " ",
     "shuffle": False,
     "repeat": False,

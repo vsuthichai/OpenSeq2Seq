@@ -107,8 +107,6 @@ class ParallelTextDataLayer(DataLayer):
       self.tgt_vocab_file, min_idx=0 if special_tokens_already_in_vocab
       else SpecialTextTokens.UNK_ID.value + 1)
 
-    print("HEY!!!!")
-    print(self.tgt_seq2idx)
     if not special_tokens_already_in_vocab:
       # manually add special tokens
       # unknown symbol

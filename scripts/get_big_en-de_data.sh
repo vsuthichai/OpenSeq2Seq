@@ -32,38 +32,38 @@ mkdir -p $OUTPUT_DIR_DATA
 #curl -o ${OUTPUT_DIR_DATA}/paracrawl-v1-2-de-en.tgz \
   #https://s3.amazonaws.com/web-language-models/paracrawl/release1/paracrawl-release1.en-de.zipporah0-dedup-clean.tgz
 
-#echo "Downloading Europarl v7. This may take a while..."
-#curl -o ${OUTPUT_DIR_DATA}/europarl-v7-de-en.tgz \
-  #http://www.statmt.org/europarl/v7/de-en.tgz
+echo "Downloading Europarl v7. This may take a while..."
+curl -o ${OUTPUT_DIR_DATA}/europarl-v7-de-en.tgz \
+  http://www.statmt.org/europarl/v7/de-en.tgz
 
-#echo "Downloading Common Crawl corpus. This may take a while..."
-#curl -o ${OUTPUT_DIR_DATA}/common-crawl.tgz \
-  #http://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz
+echo "Downloading Common Crawl corpus. This may take a while..."
+curl -o ${OUTPUT_DIR_DATA}/common-crawl.tgz \
+  http://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz
 
-#echo "Downloading News Commentary v11. This may take a while..."
-#curl -o ${OUTPUT_DIR_DATA}/nc-v11.tgz \
-  #http://data.statmt.org/wmt16/translation-task/training-parallel-nc-v11.tgz
+echo "Downloading News Commentary v11. This may take a while..."
+curl -o ${OUTPUT_DIR_DATA}/nc-v11.tgz \
+  http://data.statmt.org/wmt16/translation-task/training-parallel-nc-v11.tgz
 
-#echo "Downloading dev/test sets"
-#curl -o ${OUTPUT_DIR_DATA}/dev.tgz \
-  #http://data.statmt.org/wmt16/translation-task/dev.tgz
-#curl -o ${OUTPUT_DIR_DATA}/test.tgz \
-  #http://data.statmt.org/wmt16/translation-task/test.tgz
+echo "Downloading dev/test sets"
+curl -o ${OUTPUT_DIR_DATA}/dev.tgz \
+  http://data.statmt.org/wmt16/translation-task/dev.tgz
+curl -o ${OUTPUT_DIR_DATA}/test.tgz \
+  http://data.statmt.org/wmt16/translation-task/test.tgz
 
 # Extract everything
-#echo "Extracting all files..."
+echo "Extracting all files..."
 #mkdir -p "${OUTPUT_DIR_DATA}/paracrawl-v1-2-de-en"
 #tar -xvzf "${OUTPUT_DIR_DATA}/paracrawl-v1-2-de-en.tgz" -C "${OUTPUT_DIR_DATA}/paracrawl-v1-2-de-en"
-#mkdir -p "${OUTPUT_DIR_DATA}/europarl-v7-de-en"
-#tar -xvzf "${OUTPUT_DIR_DATA}/europarl-v7-de-en.tgz" -C "${OUTPUT_DIR_DATA}/europarl-v7-de-en"
-#mkdir -p "${OUTPUT_DIR_DATA}/common-crawl"
-#tar -xvzf "${OUTPUT_DIR_DATA}/common-crawl.tgz" -C "${OUTPUT_DIR_DATA}/common-crawl"
-#mkdir -p "${OUTPUT_DIR_DATA}/nc-v11"
-#tar -xvzf "${OUTPUT_DIR_DATA}/nc-v11.tgz" -C "${OUTPUT_DIR_DATA}/nc-v11"
-#mkdir -p "${OUTPUT_DIR_DATA}/dev"
-#tar -xvzf "${OUTPUT_DIR_DATA}/dev.tgz" -C "${OUTPUT_DIR_DATA}/dev"
-#mkdir -p "${OUTPUT_DIR_DATA}/test"
-#tar -xvzf "${OUTPUT_DIR_DATA}/test.tgz" -C "${OUTPUT_DIR_DATA}/test"
+mkdir -p "${OUTPUT_DIR_DATA}/europarl-v7-de-en"
+tar -xvzf "${OUTPUT_DIR_DATA}/europarl-v7-de-en.tgz" -C "${OUTPUT_DIR_DATA}/europarl-v7-de-en"
+mkdir -p "${OUTPUT_DIR_DATA}/common-crawl"
+tar -xvzf "${OUTPUT_DIR_DATA}/common-crawl.tgz" -C "${OUTPUT_DIR_DATA}/common-crawl"
+mkdir -p "${OUTPUT_DIR_DATA}/nc-v11"
+tar -xvzf "${OUTPUT_DIR_DATA}/nc-v11.tgz" -C "${OUTPUT_DIR_DATA}/nc-v11"
+mkdir -p "${OUTPUT_DIR_DATA}/dev"
+tar -xvzf "${OUTPUT_DIR_DATA}/dev.tgz" -C "${OUTPUT_DIR_DATA}/dev"
+mkdir -p "${OUTPUT_DIR_DATA}/test"
+tar -xvzf "${OUTPUT_DIR_DATA}/test.tgz" -C "${OUTPUT_DIR_DATA}/test"
 
 # Concatenate Training data
 #cat "${OUTPUT_DIR_DATA}/paracrawl-v1-2-de-en/paracrawl-release1.en-de.zipporah0-dedup-clean.en" \
