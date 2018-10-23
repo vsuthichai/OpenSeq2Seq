@@ -98,7 +98,6 @@ base_params = {
   }
 }
 
-'''
 train_params = {
   #"data_layer": SyntheticTextDataLayer,
   "data_layer": ParallelTextDataLayer,
@@ -119,8 +118,8 @@ train_params = {
     "max_length": 56,
   }
 }
-'''
 
+'''
 train_params = {
   "data_layer": TransformerDataLayer,
   "data_layer_params": {
@@ -137,6 +136,7 @@ train_params = {
     "repeat": 30,
   },
 }
+'''
 
 eval_params = {
   "batch_size_per_gpu": 64,
