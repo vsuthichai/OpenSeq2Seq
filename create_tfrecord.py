@@ -62,6 +62,7 @@ def create_tfrecords(src_file, trg_file, vocab_dict):
     #samples_per_file = 45010
     # ~/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord
     samples_per_file = 17676 #256 files
+    samples_per_file = 8838 #512 files
 
     writer = None
     file_count = 0
