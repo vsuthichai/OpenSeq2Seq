@@ -55,10 +55,10 @@ from __future__ import print_function
 import tensorflow as tf
 
 # Use the number of training files as the shuffle buffer.
-_FILE_SHUFFLE_BUFFER = 128
+_FILE_SHUFFLE_BUFFER = 256
 # Buffer size for reading records from a TFRecord file. Each training file is
 # 7.2 MB, so 8 MB allows an entire file to be kept in memory.
-_READ_RECORD_BUFFER = 10 * 1000 * 1000
+_READ_RECORD_BUFFER = 8 * 1000 * 1000
 
 # Example grouping constants. Defines length boundaries for each group.
 # These values are the defaults used in Tensor2Tensor.
