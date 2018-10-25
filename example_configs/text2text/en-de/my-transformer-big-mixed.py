@@ -23,8 +23,8 @@ d_model = 1024
 num_layers = 6
 
 # REPLACE THIS TO THE PATH WITH YOUR WMT DATA
-data_root = "scripts/fb_wmt16_en_de_bpe32k/"
-#data_root = "scripts/alldata_en_dt/"
+#data_root = "scripts/fb_wmt16_en_de_bpe32k/"
+data_root = "scripts/alldata_en_dt/"
 
 base_params = {
   "use_horovod": True,
@@ -147,10 +147,10 @@ eval_params = {
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
-    #"source_file": data_root+"wmt13-en-de.src.BPE_common.32K.tok",
-    "source_file": data_root+"valid.en-de.en",
-    #"target_file": data_root+"wmt13-en-de.ref.BPE_common.32K.tok",
-    "target_file": data_root+"valid.en-de.de",
+    "source_file": data_root+"wmt13-en-de.src.BPE_common.32K.tok",
+    #"source_file": data_root+"valid.en-de.en",
+    "target_file": data_root+"wmt13-en-de.ref.BPE_common.32K.tok",
+    #"target_file": data_root+"valid.en-de.de",
     "delimiter": " ",
     "shuffle": False,
     "repeat": False,
