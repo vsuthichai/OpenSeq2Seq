@@ -396,8 +396,8 @@ class TransformerDataLayer(DataLayer):
             input_length = example.features.feature['inputs'].int64_list.value
             target_length = example.features.feature['targets'].int64_list.value
             count += max(len(input_length) - 2, len(target_length) - 2)
-    print(count)
-    return count
+    #print(count)
+    return int(count * 1.12704402515723270440) # 3584 bs
 
   def get_size_in_samples(self):
     return self.dataset_size
