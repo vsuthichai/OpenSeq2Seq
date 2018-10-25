@@ -61,8 +61,9 @@ def create_tfrecords(src_file, trg_file, vocab_dict):
     ref_generator = textline_generator(trg_file)
     #samples_per_file = 45010
     # ~/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord
-    samples_per_file = 17676 #256 files
-    samples_per_file = 8838 #512 files
+    samples_per_file = 17676 #256 files all
+    samples_per_file = 8838 #512 files all
+    samples_per_file = 8791 #512 files fb_wmt16
 
     writer = None
     file_count = 0
@@ -76,13 +77,13 @@ def create_tfrecords(src_file, trg_file, vocab_dict):
         example = tf.train.Example(features=tf.train.Features(feature=feature))
         
         if writer == None:
-            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
-            #writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/fb_wmt16_en_de_bpe32k/tfrecord/wmt16-en-de.%03d" % file_count)
+            #writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
+            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/fb_wmt16_en_de_bpe32k/tfrecord/wmt16-en-de.%03d" % file_count)
             file_count += 1
         elif i % samples_per_file == 0:
             writer.close()
-            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
-            #writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/fb_wmt16_en_de_bpe32k/tfrecord/wmt16-en-de.%03d" % file_count)
+            #writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/alldata_en_dt/tfrecord/wmt16-en-de.%03d" % file_count)
+            writer = tf.python_io.TFRecordWriter("/home/ubuntu/github/OpenSeq2Seq/scripts/fb_wmt16_en_de_bpe32k/tfrecord/wmt16-en-de.%03d" % file_count)
             file_count += 1
 
         writer.write(example.SerializeToString())
