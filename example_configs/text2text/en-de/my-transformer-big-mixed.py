@@ -136,7 +136,7 @@ train_params = {
     "batch_in_tokens": True,
     "num_cpu_cores": 16,
     "repeat": 30,
-    'pad_data_to_eight': True,
+    'pad_data_to_eight': False,
   },
 }
 
