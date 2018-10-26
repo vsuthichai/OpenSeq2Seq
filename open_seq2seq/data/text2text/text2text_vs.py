@@ -378,8 +378,8 @@ class TransformerDataLayer(DataLayer):
     return self._input_tensors
 
   def count_size_in_samples(self):
-    #return 144333149 fb
-    #return 147228505 wmt16 all
+    return 144333149 #fb
+    #return 147228505 #wmt16 all
 
     data_fields = {
         "inputs": tf.VarLenFeature(tf.int64),

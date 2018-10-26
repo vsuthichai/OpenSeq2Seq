@@ -32,7 +32,7 @@ base_params = {
   "batch_size_per_gpu": 256,  # this size is in sentence pairs, reduce it if you get OOM
   #"max_steps": 100000,
   "save_summaries_steps": 10,
-  "print_loss_steps": 5,
+  "print_loss_steps": 1,
   "print_samples_steps": None,
   "eval_steps": 500,
   "save_checkpoint_steps": 10000,

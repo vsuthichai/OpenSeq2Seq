@@ -115,7 +115,8 @@ class TransformerEncoder(Encoder):
       # Prepare inputs to the layer stack by adding positional encodings and
       # applying dropout.
       embedded_inputs = self.embedding_softmax_layer(inputs)
-      inputs_padding = utils.get_padding(inputs)
+      #inputs_padding = utils.get_padding(inputs)
+      inputs_padding = None
       inputs_attention_bias = utils.get_padding_bias(inputs)
 
       with tf.name_scope("add_pos_encoding"):
