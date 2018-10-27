@@ -8,7 +8,7 @@ import tensorflow as tf
 from six.moves import range
 
 from open_seq2seq.encoders import Encoder
-from open_seq2seq.parts.transformer import attention_layer, ffn_layer_vs, utils, \
+from open_seq2seq.parts.transformer import attention_layer, ffn_layer, utils, \
                                            embedding_layer
 from open_seq2seq.parts.transformer.common import PrePostProcessingWrapper, \
                                                   LayerNormalization
@@ -95,7 +95,7 @@ class TransformerEncoder(Encoder):
             self.params["hidden_size"], self.params["num_heads"],
             self.params["attention_dropout"], self.mode == "train",
         )
-        feed_forward_network = ffn_layer_vs.FeedFowardNetwork(
+        feed_forward_network = ffn_layer.FeedFowardNetwork(
             self.params["hidden_size"], self.params["filter_size"],
             self.params["relu_dropout"], self.mode == "train",
         )
