@@ -46,7 +46,7 @@ class PrePostProcessingWrapper(object):
     # Create normalization layer
     self.layer_norm = LayerNormalization(params["hidden_size"])
 
-  def __call__(self, x, *args, **kwargs):
+  def orig__call__(self, x, *args, **kwargs):
     # Preprocessing: apply layer normalization
     y = self.layer_norm(x)
 
@@ -57,3 +57,12 @@ class PrePostProcessingWrapper(object):
     if self.train:
       y = tf.nn.dropout(y, 1 - self.postprocess_dropout)
     return x + y
+
+  def __call__(self, x, *args, **kwargs):
+    # Get layer output
+    y = self.layer(x, *args, **kwargs)
+
+    # Postprocessing: apply dropout and residual connection
+    if self.train:
+      y = tf.nn.dropout(y, 1 - self.postprocess_dropout)
+    return self.layer_norm(x + y)

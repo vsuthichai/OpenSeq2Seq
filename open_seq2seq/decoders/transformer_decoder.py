@@ -113,9 +113,9 @@ class TransformerDecoder(Decoder):
                                        self.mode == "train")
           ])
 
-        self.output_normalization = LayerNormalization(
-            self.params["hidden_size"]
-        )
+        #self.output_normalization = LayerNormalization(
+        #    self.params["hidden_size"]
+        #)
 
       if targets is None:
         return self.predict(encoder_outputs, inputs_attention_bias)
@@ -152,7 +152,8 @@ class TransformerDecoder(Decoder):
         with tf.variable_scope("ffn"):
           decoder_inputs = feed_forward_network(decoder_inputs)
 
-    return self.output_normalization(decoder_inputs)
+    #return self.output_normalization(decoder_inputs)
+    return decoder_inputs
 
   def decode_pass(self, targets, encoder_outputs, inputs_attention_bias):
     """Generate logits for each value in the target sequence.

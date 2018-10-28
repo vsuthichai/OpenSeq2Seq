@@ -62,7 +62,7 @@ class TransformerEncoder(Encoder):
         params, model, name=name, mode=mode,
     )
     self.layers = []
-    self.output_normalization = None
+    #self.output_normalization = None
     self._mode = mode
 
     self.embedding_softmax_layer = None
@@ -79,7 +79,8 @@ class TransformerEncoder(Encoder):
         with tf.variable_scope("ffn"):
           encoder_inputs = feed_forward_network(encoder_inputs, inputs_padding)
 
-    return self.output_normalization(encoder_inputs)
+    return encoder_inputs
+    #return self.output_normalization(encoder_inputs)
 
   def _encode(self, input_dict):
     if len(self.layers) == 0:
@@ -108,7 +109,7 @@ class TransformerEncoder(Encoder):
         ])
 
       # Create final layer normalization layer.
-      self.output_normalization = LayerNormalization(self.params["hidden_size"])
+      # self.output_normalization = LayerNormalization(self.params["hidden_size"])
 
     # actual encoder part
     with tf.name_scope("encode"):
