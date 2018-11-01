@@ -44,6 +44,17 @@ base_params = {
   #"max_grad_norm": 1.0,
   "num_epochs": 30,
 
+  "summaries": [
+    "learning_rate",
+    "gradients",
+    "gradient_norm",
+    "global_gradient_norm",
+    "variables",
+    "variable_norm",
+    "larc_summaries",
+    "loss_scale"
+  ]
+
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
     "beta1": 0.9,
