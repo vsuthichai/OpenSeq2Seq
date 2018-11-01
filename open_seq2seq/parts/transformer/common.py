@@ -26,15 +26,22 @@ class LayerNormalization(tf.layers.Layer):
     self.built = True
 
   def call(self, x, epsilon=1e-6):
-    #dtype = x.dtype
-    #x = tf.cast(x=x, dtype=tf.float32)
+    '''
+    dtype = x.dtype
+    x = tf.cast(x=x, dtype=tf.float32)
     mean = tf.reduce_mean(x, axis=[-1], keepdims=True)
     variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keepdims=True)
     norm_x = (x - mean) * tf.rsqrt(variance + epsilon)
     result = norm_x * self.scale + self.bias
-    return result
     #return tf.cast(x=result, dtype=dtype)
+    '''
 
+    mean = tf.reduce_sum(tf.divide(x, self.hidden_size), axis=[-1], keepdims=True)
+    variance = tf.reduce_sum(tf.divide(tf.square(x - mean), self.hidden_size), axis=[-1], keepdims=True)
+    norm_x = (x - mean) * tf.rsqrt(variance + epsilon)
+    result = norm_x * self.scale + self.bias
+
+    return result
 
 class PrePostProcessingWrapper(object):
   """Wrapper class that applies layer pre-processing and post-processing."""
