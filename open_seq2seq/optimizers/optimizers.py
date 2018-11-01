@@ -103,8 +103,8 @@ def reduce_gradients(grads_and_vars, on_horovod):
                 values=summed_values,
                 dense_shape=grad.dense_shape)
               _grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
-            #avg_grad = allreduce(_grad, compression=Compression.fp16)
-            avg_grad = allreduce(_grad)
+            avg_grad = allreduce(_grad, compression=Compression.fp16)
+            #avg_grad = allreduce(_grad)
             averaged_grads_and_vars.append((avg_grad, var))
           else:
             averaged_grads_and_vars.append((None, var))
