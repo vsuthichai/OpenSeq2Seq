@@ -53,7 +53,7 @@ base_params = {
     "variable_norm",
     "larc_summaries",
     "loss_scale"
-  ]
+  ],
 
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
