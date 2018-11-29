@@ -43,7 +43,7 @@ class LayerNormalization(tf.layers.Layer):
     y1 = tf.layers.batch_normalization(
       #center=True,
       #scale=True,
-      inputs=tf.cast(x1, dtype=tf.float32),
+      inputs=tf.cast(x, dtype=tf.float32),
       #inputs=x1,
       training=True,
       axis=-1,
