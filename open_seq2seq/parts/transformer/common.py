@@ -44,16 +44,16 @@ class LayerNormalization(tf.layers.Layer):
     y1 = tf.layers.batch_normalization(
       center=True,
       scale=True,
-      #inputs=tf.cast(x1, dtype=tf.float32),
-      inputs=x1,
+      inputs=tf.cast(x1, dtype=tf.float32),
+      #inputs=x1,
       training=True,
       axis=axis,
       momentum=0.95,
-      #epsilon=epsilon,
-      epsilon=0.001,
+      epsilon=epsilon,
+      #epsilon=0.001,
     )
     y2 = tf.squeeze(y1, axis=[2])
-    #y2 = tf.cast(y2, dtype=dtype)
+    y2 = tf.cast(y2, dtype=dtype)
     #print(y2)
     return y2
 
