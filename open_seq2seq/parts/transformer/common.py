@@ -49,11 +49,11 @@ class LayerNormalization(tf.layers.Layer):
       training=True,
       axis=axis,
       momentum=0.95,
-      epsilon=epsilon,
-      #epsilon=0.001,
+      #epsilon=epsilon,
+      epsilon=0.001,
     )
     y2 = tf.squeeze(y1, axis=[2])
-    y2 = tf.cast(y2, dtype=dtype)
+    #y2 = tf.cast(y2, dtype=dtype)
     #print(y2)
     return y2
 
