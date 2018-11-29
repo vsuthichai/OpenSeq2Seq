@@ -103,8 +103,8 @@ def reduce_gradients(grads_and_vars, on_horovod):
                 values=summed_values,
                 dense_shape=grad.dense_shape)
               _grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
-            avg_grad = allreduce(_grad, compression=Compression.fp16)
-            #avg_grad = allreduce(_grad)
+            #avg_grad = allreduce(_grad, compression=Compression.fp16)
+            avg_grad = allreduce(_grad)
             averaged_grads_and_vars.append((avg_grad, var))
           else:
             averaged_grads_and_vars.append((None, var))
@@ -381,10 +381,15 @@ def post_process_gradients(grads_and_vars, summaries, lr,
 
 
 def _global_norm_with_cast(grads_and_vars):
-  return tf.global_norm(list(map(
+  return tf.global_norm(
+    list(map(lambda x: tf.cast(x, tf.float32),
+    filter(lambda x: x != None, list(zip(*grads_and_vars))[0]))))
+  '''
+  return tf.global_norm(filter(lambda x: x != None, list(map(
       lambda x: tf.cast(x, tf.float32),
       list(zip(*grads_and_vars))[0]
-  )))
+  ))))
+  '''
 
 
 def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
