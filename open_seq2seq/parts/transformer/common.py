@@ -26,6 +26,7 @@ class LayerNormalization(tf.layers.Layer):
     self.built = True
 
   def call(self, x, epsilon=1e-6):
+    '''
     dtype = x.dtype
     x = tf.cast(x=x, dtype=tf.float32)
     mean = tf.reduce_mean(x, axis=[-1], keepdims=True)
@@ -35,27 +36,25 @@ class LayerNormalization(tf.layers.Layer):
     z = tf.cast(x=result, dtype=dtype)
     #print(z)
     return z
-
     '''
-    x1 = tf.expand_dims(x, axis=2)
+
+    #x1 = tf.expand_dims(x, axis=2)
     dtype = x.dtype
-    axis = -1
     y1 = tf.layers.batch_normalization(
-      center=True,
-      scale=True,
+      #center=True,
+      #scale=True,
       inputs=tf.cast(x1, dtype=tf.float32),
       #inputs=x1,
       training=True,
-      axis=axis,
-      momentum=0.95,
-      epsilon=epsilon,
+      axis=-1,
+      #momentum=0.95,
+      #epsilon=epsilon,
       #epsilon=0.001,
     )
-    y2 = tf.squeeze(y1, axis=[2])
-    y2 = tf.cast(y2, dtype=dtype)
+    #y2 = tf.squeeze(y1, axis=[2])
+    y2 = tf.cast(y1, dtype=dtype)
     #print(y2)
     return y2
-    '''
 
     '''
     return tf.contrib.layers.layer_norm(
