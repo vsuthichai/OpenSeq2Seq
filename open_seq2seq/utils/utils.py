@@ -147,7 +147,10 @@ def iterate_data(model, sess, compute_loss, mode, verbose, num_steps=None):
       for worker_id in range(model.num_gpus):
         if total_samples[worker_id] < dl_sizes[worker_id]:
           fetches_to_run[worker_id] = fetches[worker_id]
-      fetches_vals = sess.run(fetches_to_run)
+      try:
+        fetches_vals = sess.run(fetches_to_run)
+      except tf.errors.OutOfRangeError:
+        pass
     else:
       # if size is not defined we have to process fetches sequentially, so not
       # to lose data when exception is thrown on one data layer
@@ -504,6 +507,11 @@ def get_base_config(args):
                       help='run TensorFlow in debug mode on specified port')
   parser.add_argument('--enable_logs', dest='enable_logs', action='store_true',
                       help='whether to log output, git info, cmd args, etc.')
+  parser.add_argument('--use_trt', dest='use_trt', action='store_true',
+                      help='use TF-TRT to optimize graph for inference (mode must be infer)')
+  parser.add_argument('--precision', type=str, default='fp32',
+                      choices=['fp32', 'fp16', 'int8'],
+                      help='precision for TF-TRT (only valid with --use_trt')  
   args, unknown = parser.parse_known_args(args)
 
   if args.mode not in [
@@ -745,7 +753,6 @@ def create_model(args, base_config, config_module, base_model, hvd, restore_best
     if hvd is None or hvd.rank() == 0:
       deco_print("Inference config:")
       pprint.pprint(infer_config)
-
 
   if args.benchmark:
     deco_print("Adjusting config for benchmarking")

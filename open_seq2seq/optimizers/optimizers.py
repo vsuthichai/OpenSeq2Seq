@@ -75,12 +75,16 @@ def get_regularization_loss(scope=None, name="total_regularization_loss"):
 
 def reduce_gradients(grads_and_vars, on_horovod, model=None):
   if on_horovod:
-    from horovod.tensorflow import allreduce, size
+    from horovod.tensorflow import size
+    from horovod.tensorflow import allreduce
+    from horovod.tensorflow import Compression
+    from tensorflow.python.training.optimizer import _deduplicate_indexed_slices
 
     if size() > 1:
       averaged_grads_and_vars = []
       with tf.name_scope("all_reduce"):
         for grad, var in grads_and_vars:
+          """
           if grad is not None:
             if isinstance(grad, tf.IndexedSlices):
               if model._decoder.params.get('shared_embed', False):
@@ -93,6 +97,24 @@ def reduce_gradients(grads_and_vars, on_horovod, model=None):
                     dense_shape=grad.dense_shape)
                 grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
             avg_grad = allreduce(grad)
+            averaged_grads_and_vars.append((avg_grad, var))
+          else:
+            averaged_grads_and_vars.append((None, var))
+          """
+
+          if grad is not None:
+            _grad = grad
+            if isinstance(grad, tf.IndexedSlices):
+              #ind = tf.Print(ind, [tf.size(ind)], summarize=400)
+              summed_values, unique_indices = _deduplicate_indexed_slices(
+                values=grad.values, indices=grad.indices)
+              gradient_no_duplicate_indices = tf.IndexedSlices(
+                indices=unique_indices,
+                values=summed_values,
+                dense_shape=grad.dense_shape)
+              _grad = tf.convert_to_tensor(gradient_no_duplicate_indices)
+            avg_grad = allreduce(_grad, compression=Compression.fp16)
+            #avg_grad = allreduce(_grad)
             averaged_grads_and_vars.append((avg_grad, var))
           else:
             averaged_grads_and_vars.append((None, var))
@@ -374,10 +396,15 @@ def post_process_gradients(grads_and_vars, summaries, lr,
 
 
 def _global_norm_with_cast(grads_and_vars):
-  return tf.global_norm(list(map(
+  return tf.global_norm(
+    list(map(lambda x: tf.cast(x, tf.float32),
+    filter(lambda x: x != None, list(zip(*grads_and_vars))[0]))))
+  '''
+  return tf.global_norm(filter(lambda x: x != None, list(map(
       lambda x: tf.cast(x, tf.float32),
       list(zip(*grads_and_vars))[0]
-  )))
+  ))))
+  '''
 
 
 def _clip_gradients_by_norm(grads_and_vars, clip_gradients):

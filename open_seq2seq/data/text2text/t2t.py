@@ -55,10 +55,10 @@ from __future__ import print_function
 import tensorflow as tf
 
 # Use the number of training files as the shuffle buffer.
-_FILE_SHUFFLE_BUFFER = 100
+_FILE_SHUFFLE_BUFFER = 512
 # Buffer size for reading records from a TFRecord file. Each training file is
 # 7.2 MB, so 8 MB allows an entire file to be kept in memory.
-_READ_RECORD_BUFFER = 8 * 1000 * 1000
+_READ_RECORD_BUFFER = 2 * 1000 * 1000
 
 # Example grouping constants. Defines length boundaries for each group.
 # These values are the defaults used in Tensor2Tensor.
@@ -78,8 +78,8 @@ def _parse_example(serialized_example, pad_2_eight=False):
       "targets": tf.VarLenFeature(tf.int64)
   }
   parsed = tf.parse_single_example(serialized_example, data_fields)
-  inputs = tf.sparse_tensor_to_dense(parsed["inputs"])
-  targets = tf.sparse_tensor_to_dense(parsed["targets"])
+  inputs = tf.cast(tf.sparse_tensor_to_dense(parsed["inputs"]), tf.int32)
+  targets = tf.cast(tf.sparse_tensor_to_dense(parsed["targets"]), tf.int32)
 
   if pad_2_eight:
     inputs = tf.cond(
@@ -268,5 +268,5 @@ def _read_and_batch_from_files(
   dataset = dataset.repeat(repeat)
 
   # Prefetch the next element to improve speed of input pipeline.
-  dataset = dataset.prefetch(1)
+  dataset = dataset.prefetch(buffer_size=tf.contrib.data.AUTOTUNE)
   return dataset

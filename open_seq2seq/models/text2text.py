@@ -13,7 +13,7 @@ from open_seq2seq.data.text2text.text2text import SpecialTextTokens
 from open_seq2seq.utils.utils import deco_print, array_to_string, \
                                      text_ids_to_string
 from .encoder_decoder import EncoderDecoderModel
-
+import numpy as np
 
 def transform_for_bleu(row, vocab, ignore_special=False,
                        delim=' ', bpe_used=False):
@@ -130,6 +130,19 @@ class Text2Text(EncoderDecoderModel):
     y_sample = y[0]
     len_y_sample = len_y[0]
 
+    print("src len {}\nsum={}".format(len_x, sum(len_x)))
+    print("trg len {}\nsum={}".format(len_y, sum(len_y)))
+    print(x)
+    print(len_x)
+    print(x.shape)
+    print(y)
+    print(len_y)
+    print(y.shape)
+    print("bsz={}".format(np.sum(np.maximum(len_x, len_y) - 2)))
+    #print(y_sample)
+    #print(len_y_sample)
+    #print(y_sample[:len_y_sample])
+
     deco_print(
         "Train Source[0]:     " + array_to_string(
             x_sample[:len_x_sample],
@@ -154,6 +167,7 @@ class Text2Text(EncoderDecoderModel):
         ),
         offset=4,
     )
+
     return {}
 
   def evaluate(self, input_values, output_values):

@@ -481,7 +481,7 @@ class Model:
         lr_policy = lambda gs: self.params['lr_policy'](global_step=gs,
                                                         **lr_params)
 
-      if self.params.get('iter_size', 1) > 1:
+      if self.params.get('iter_size', 1) >= 1:
         self.skip_update_ph = tf.placeholder(tf.bool)
 
       var_list = tf.trainable_variables()
