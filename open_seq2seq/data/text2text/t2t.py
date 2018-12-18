@@ -265,7 +265,8 @@ def _read_and_batch_from_files(
   else:
     # Examples can have different lenghts
     dataset = dataset.padded_batch(batch_size, ([None], [None]))
-  dataset = dataset.repeat(repeat)
+  #dataset = dataset.repeat(repeat)
+  dataset = dataset.repeat()
 
   # Prefetch the next element to improve speed of input pipeline.
   dataset = dataset.prefetch(buffer_size=tf.contrib.data.AUTOTUNE)
