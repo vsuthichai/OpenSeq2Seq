@@ -69,7 +69,7 @@ base_params = {
     #"warmup_steps": 350,
 
     "learning_rate": 1.25,
-    "warmup_steps": 350,
+    "warmup_steps": 500,
 
     #"warmup_steps": 8000,
     "d_model": d_model,
