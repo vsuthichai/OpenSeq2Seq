@@ -64,7 +64,7 @@ base_params = {
 
   "lr_policy": transformer_policy,
   "lr_policy_params": {
-    "learning_rate": 2.0,
+    "learning_rate": 3.0,
     #"warmup_steps": 8000,
     #"warmup_steps": 30,
     "warmup_steps": 4000,
