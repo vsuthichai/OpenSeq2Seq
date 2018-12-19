@@ -41,7 +41,7 @@ base_params = {
   "dtype": "mixed",
   "loss_scaling": "Backoff",
   "iter_size": 1,
-  #"max_grad_norm": 1.0,
+  "max_grad_norm": 1.0,
   "num_epochs": 30,
 
   "summaries": [
