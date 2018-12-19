@@ -406,7 +406,7 @@ def _clip_gradients_by_norm(grads_and_vars, clip_gradients):
 
   # Convert gradients back to the proper dtype
   clipped_gradients = [
-      tf.cast(grad, dtype)
+      tf.cast(grad, dtype) if grad is not None else None
       for grad, dtype in zip(clipped_gradients, dtypes)
   ]
 

@@ -153,3 +153,19 @@ def transformer_policy(global_step, learning_rate, d_model, warmup_steps,
   if max_lr is not None:
     return tf.minimum(max_lr, new_lr)
   return new_lr
+
+def inverse_square_root_policy(global_step, learning_rate, warmup_steps,
+                               max_lr, dtype=tf.float32):
+  step_num = tf.cast(global_step, dtype=dtype)
+  ws = tf.cast(warmup_steps, dtype=dtype)
+  warmup_end_lr = tf.cast(max_lr, dtype=dtype)
+  lr_step = warmup_end_lr / ws
+  decay_factor = warmup_end_lr * ws**0.5
+
+  if step_num < ws:
+    new_lr = step_num * lr_step
+  else:
+    new_lr = decay_factor * step_num**-0.5
+
+  return new_lr
+

@@ -10,7 +10,7 @@ from open_seq2seq.data.text2text.text2text_padded import PaddedParallelTextDataL
 from open_seq2seq.losses import PaddedCrossEntropyLossWithSmoothing
 from open_seq2seq.data.text2text.text2text import SpecialTextTokens
 from open_seq2seq.data.text2text.tokenizer import EOS_ID
-from open_seq2seq.optimizers.lr_policies import transformer_policy
+from open_seq2seq.optimizers.lr_policies import transformer_policy, inverse_square_root_policy
 import tensorflow as tf
 
 """
@@ -41,7 +41,7 @@ base_params = {
   "dtype": "mixed",
   "loss_scaling": "Backoff",
   "iter_size": 1,
-  #"max_grad_norm": 1.0,
+  "max_grad_norm": 1.0,
   "num_epochs": 30,
 
   "summaries": [
@@ -71,9 +71,17 @@ base_params = {
     "learning_rate": 1.25,
     "warmup_steps": 500,
 
+    #"learning_rate": 1.0,
     #"warmup_steps": 8000,
     "d_model": d_model,
   },
+
+  #"lr_policy": inverse_square_root_policy,
+  #"lr_policy_params": {
+    #"learning_rate": 1.0,
+    #"warmup_steps": 350,
+    #"max_lr": 22.5e-4,
+  #},
 
   "encoder": TransformerEncoder,
   "encoder_params": {
