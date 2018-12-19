@@ -35,7 +35,7 @@ base_params = {
   "print_loss_steps": 1,
   "print_samples_steps": None,
   "eval_steps": 100,
-  "save_checkpoint_steps": 10000,
+  "save_checkpoint_steps": 1000,
   "logdir": "Transformer-FP32-H-256",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
@@ -96,7 +96,7 @@ base_params = {
     "layer_postprocess_dropout": 0.1,
     #"layer_postprocess_dropout": 0.3,
     "pad_embeddings_2_eight": True,
-    "remove_padding": True,
+    "remove_padding": False,
   },
 
   "decoder": TransformerDecoder,
