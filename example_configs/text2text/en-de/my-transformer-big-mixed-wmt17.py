@@ -174,9 +174,9 @@ eval_params = {
   "data_layer_params": {
     "src_vocab_file": data_root+"m_common.vocab",
     "tgt_vocab_file": data_root+"m_common.vocab",
-    "source_file": data_root+"wmt13-full-en-de.src.BPE_common.32K.tok",
+    "source_file": data_root+"wmt13-en-de.src.BPE_common.32K.tok",
     #"source_file": data_root+"valid.en-de.en",
-    "target_file": data_root+"wmt13-full-en-de.ref.BPE_common.32K.tok",
+    "target_file": data_root+"wmt13-en-de.ref.BPE_common.32K.tok",
     #"target_file": data_root+"valid.en-de.de",
     "delimiter": " ",
     "shuffle": False,
