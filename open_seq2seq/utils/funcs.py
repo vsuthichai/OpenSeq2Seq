@@ -15,6 +15,7 @@ from open_seq2seq.utils.utils import deco_print, get_results_for_epoch, \
                                      collect_if_horovod
 from .hooks import PrintSamplesHook, RunEvaluationHook, PrintLossAndTimeHook, \
                    BroadcastGlobalVariablesHook
+from .hooks_vs import PrintTensorHook
 from open_seq2seq.models import LSTMLM
 
 
@@ -79,6 +80,13 @@ def train(train_model, eval_model=None, debug_port=None):
           every_steps=train_model.params['print_samples_steps'],
           model=train_model,
       ))
+    #hooks.append(PrintTensorHook(
+          #every_steps=1,
+          #model=train_model,
+          #tensor_name="ForwardPass/transformer_encoder/encode/embedding_shared_weights/embedding/GatherV2:0"
+          #tensor_name="ForwardPass/transformer_encoder/encode/embedding_shared_weights/embedding/mul_2:0"
+          #tensor_name="ForwardPass/transformer_encoder/encode/embedding_shared_weights/embedding_and_softmax/add:0"
+    #))
 
   total_time = 0.0
   bench_start = train_model.params.get('bench_start', 10)
@@ -100,6 +108,7 @@ def train(train_model, eval_model=None, debug_port=None):
       local_init_op=tf.group(tf.local_variables_initializer(), init_data_layer)
   )
   fetches = [train_model.train_op]
+  #fetches = []
   try:
     total_objects = 0.0
     # on horovod num_gpus is 1

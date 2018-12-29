@@ -8,7 +8,7 @@ import os
 from enum import Enum
 from open_seq2seq.data.data_layer import DataLayer
 from open_seq2seq.data.utils import load_pre_existing_vocabulary, pad_vocab_to_eight
-from open_seq2seq.data.text2text.t2t import _read_and_batch_from_files
+from open_seq2seq.data.text2text.t2t import _read_and_batch_from_files, generate_synthetic_data
 from open_seq2seq.data.text2text.tokenizer import PAD_ID
 
 
@@ -17,6 +17,13 @@ class SpecialTextTokens(Enum):
   EOS_ID = 1  # special end of sentence token
   S_ID = 2  # special start of sentence token
   UNK_ID = 3  # out-of-vocabulary tokens will map there
+
+
+  #ZERO_ID = 0  # special padding token
+  #PAD_ID = 1  # special padding token
+  #EOS_ID = 2  # special end of sentence token
+  #UNK_ID = 3  # out-of-vocabulary tokens will map there
+
   OUT_OF_BUCKET = 1234567890
   END_OF_CHOICE = -100
 
@@ -323,6 +330,14 @@ class TransformerDataLayer(DataLayer):
       self.tgt_vocab_file,
       min_idx=PAD_ID)
 
+    # ZZZZ
+    #self.src_seq2idx = load_pre_existing_vocabulary(
+      #self.src_vocab_file,
+      #min_idx=0)
+    #self.tgt_seq2idx = load_pre_existing_vocabulary(
+      #self.tgt_vocab_file,
+      #min_idx=0)
+
     self.src_idx2seq = {idx: w for w, idx in self.src_seq2idx.items()}
     self.tgt_idx2seq = {idx: w for w, idx in self.tgt_seq2idx.items()}
 
@@ -344,6 +359,7 @@ class TransformerDataLayer(DataLayer):
   def build_graph(self):
     file_pattern = os.path.join(self.params['data_dir'],
                                 self.params['file_pattern'])
+    # ZZZ
     self.batched_dataset = _read_and_batch_from_files(
       file_pattern=file_pattern,
       batch_size=self.params['batch_size'],
@@ -361,6 +377,16 @@ class TransformerDataLayer(DataLayer):
 
     len_x = tf.count_nonzero(x, axis=1, dtype=tf.int32)
     len_y = tf.count_nonzero(y, axis=1, dtype=tf.int32)
+    # ZZZ
+
+    # AAA
+    '''
+    self.batched_dataset = generate_synthetic_data()
+    self._iterator = self.batched_dataset.make_initializable_iterator()
+    (x, len_x), (y, len_y) = self.iterator.get_next()
+    '''
+    # AAA
+
     if self.params['mode'] == 'train' or self.params['mode'] == 'eval':
       self._input_tensors['source_tensors'] = [x, len_x]
       self._input_tensors['target_tensors'] = [y, len_y]

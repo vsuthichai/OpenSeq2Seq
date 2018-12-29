@@ -19,6 +19,8 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+import traceback as tb
+import sys
 
 from . import utils as model_utils
 
@@ -50,6 +52,29 @@ class EmbeddingSharedWeights(tf.layers.Layer):
     with tf.variable_scope("embedding_and_softmax", reuse=tf.AUTO_REUSE):
       # Create and initialize weights. The random normal initializer was chosen
       # randomly, and works well.
+
+      # AAA
+      #import numpy as np
+      #np.random.seed(0)
+      #np_init_weights = np.random.normal(0., self.init_var, (self.vocab_size, self.hidden_size))
+      #np_init_weights[1, :] = 0.
+      #print(np_init_weights[0])
+
+      #init_weights = tf.constant(np_init_weights, dtype=tf.float16)
+      #self.shared_weights = tf.get_variable("weights", 
+                                            #initializer=init_weights,
+                                            #regularizer=self.regularizer)
+      #self.shared_weights = tf.Print(self.shared_weights, [self.shared_weights], message="BIGTENSOR", summarize=self.vocab_size * self.hidden_size)
+
+      #np_mask = np.ones((self.vocab_size, self.hidden_size))
+      #np_mask[1, :] = 0.
+      #mask = tf.constant(np_mask, dtype=tf.float16)
+      #invert_mask = tf.abs(mask - 1.)
+      #self.shared_weights = tf.stop_gradient(invert_mask * self.shared_weights) + (mask * self.shared_weights)
+      #print(self.shared_weights)
+      #self.shared_weights = tf.Print(self.shared_weights, [self.shared_weights], summarize=self.hidden_size * 3)
+
+      # ZZZ
       self.shared_weights = tf.get_variable("weights", [self.vocab_size, self.hidden_size],
                                             initializer=tf.random_normal_initializer(0., self.init_var), \
                                             regularizer=self.regularizer)
