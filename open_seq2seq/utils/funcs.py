@@ -203,6 +203,8 @@ def train(train_model, eval_model=None, debug_port=None):
     deco_print("Finished training")
     if step > bench_start:
       avg_time = 1.0 * total_time / num_bench_updates
+      deco_print("Total step updates: {}".format(num_bench_updates))
+      deco_print("Total time: {}s".format(total_time))
       deco_print("Avg time per step: {:.3f}s".format(avg_time))
       if len(fetches) > 1:
         avg_objects = 1.0 * total_objects / total_time
