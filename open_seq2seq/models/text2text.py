@@ -241,6 +241,16 @@ class Text2Text(EncoderDecoderModel):
   def _get_num_objects_per_step(self, worker_id=0):
     """Returns number of source tokens + number of target tokens in batch."""
     data_layer = self.get_data_layer(worker_id)
+
+    if self.mode != "infer":
+        num_start_eos_tokens = tf.size(data_layer.input_tensors['target_tensors'][1]) * 2
+        num_tokens = tf.reduce_sum(data_layer.input_tensors['target_tensors'][1]) - num_start_eos_tokens
+    else:
+        num_tokens = tf.reduce_sum(
+          tf.shape(self.get_output_tensors(worker_id)[0])
+        )
+        
+    '''
     # sum of source length in batch
     num_tokens = tf.reduce_sum(data_layer.input_tensors['source_tensors'][1])
     if self.mode != "infer":
@@ -252,4 +262,6 @@ class Text2Text(EncoderDecoderModel):
       num_tokens += tf.reduce_sum(
           tf.shape(self.get_output_tensors(worker_id)[0])
       )
+    '''
     return num_tokens
+
