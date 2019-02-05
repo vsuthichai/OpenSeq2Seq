@@ -58,7 +58,7 @@ base_params = {
   "optimizer": tf.contrib.opt.LazyAdamOptimizer,
   "optimizer_params": {
     "beta1": 0.9,
-    "beta2": 0.98,
+    "beta2": 0.997,
     "epsilon": 1e-09,
   },
 
