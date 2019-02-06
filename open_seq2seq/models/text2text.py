@@ -243,8 +243,10 @@ class Text2Text(EncoderDecoderModel):
     data_layer = self.get_data_layer(worker_id)
 
     if self.mode != "infer":
-        num_start_eos_tokens = tf.size(data_layer.input_tensors['target_tensors'][1]) * 2
-        num_tokens = tf.reduce_sum(data_layer.input_tensors['target_tensors'][1]) - num_start_eos_tokens
+        # Follow T2T mechanism for counting number of words in sample
+        mx_len = tf.maximum(data_layer.input_tensors['target_tensors'][1], 
+                            data_layer.input_tensors['source_tensors'][1])
+        num_tokens = tf.reduce_sum(mx_len) - (tf.size(mx_len) * 2)
     else:
         num_tokens = tf.reduce_sum(
           tf.shape(self.get_output_tensors(worker_id)[0])
