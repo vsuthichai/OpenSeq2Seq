@@ -274,9 +274,9 @@ def _read_and_batch_from_files(
 
 def generate_synthetic_data():
     from open_seq2seq.data.text2text.text2text_vs import SpecialTextTokens
+    import numpy as np
 
     def generate_batch():
-      import numpy as np
       np.random.seed(0)
       avg_len = 30
       batch_size = 112
@@ -295,13 +295,12 @@ def generate_synthetic_data():
       trg_batch[:, avg_len+1] = SpecialTextTokens.EOS_ID.value
 
       while 1:
-       print(src_batch)
+       #print(src_batch)
        yield ((src_batch, [avg_len + 2] * batch_size), (trg_batch, [avg_len + 2] * batch_size))
 
     def generate_batch_0():
-      import numpy as np
       np.random.seed(0)
-      avg_len = 30
+      avg_len = 32
       batch_size = 1
 
       src_batch = np.ones((batch_size, avg_len), dtype=np.int)
@@ -318,22 +317,12 @@ def generate_synthetic_data():
       prev_output_tokens[:, 1:] = prev_output_tokens[:, :-1]
       prev_output_tokens[:, 0] = 2
 
-      '''
-      src_batch = np.ones((batch_size, 48), dtype=np.int)
-      src_batch[:, 0:avg_len] = np.random.randint(low=4, high=32768 - 1, size=(batch_size, avg_len))
-      src_batch[:, avg_len] = SpecialTextTokens.EOS_ID.value
-
-      trg_batch = np.ones((batch_size, 48), dtype=np.int)
-      trg_batch[:, 0:avg_len] = np.random.randint(low=4, high=32768 - 1, size=(batch_size, avg_len))
-      trg_batch[:, avg_len] = SpecialTextTokens.EOS_ID.value
-      '''
-
       while 1: 
-          print(src_batch)
+          #print(src_batch)
           yield ((src_batch, [avg_len] * batch_size), (trg_batch, [avg_len] * batch_size))
 
     dataset = tf.data.Dataset.from_generator(
-      generate_batch,
+      generate_batch_0,
       ((tf.int32, tf.int32), (tf.int32, tf.int32)),
       ((tf.TensorShape([None, None]), tf.TensorShape([None])), (tf.TensorShape([None, None]), tf.TensorShape([None])))
     ).prefetch(tf.contrib.data.AUTOTUNE)

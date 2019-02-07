@@ -54,30 +54,31 @@ class EmbeddingSharedWeights(tf.layers.Layer):
       # randomly, and works well.
 
       # AAA
-      #import numpy as np
-      #np.random.seed(0)
-      #np_init_weights = np.random.normal(0., self.init_var, (self.vocab_size, self.hidden_size))
-      #np_init_weights[1, :] = 0.
-      #print(np_init_weights[0])
+      import numpy as np
+      np.random.seed(0)
+      np_init_weights = np.random.normal(0., self.init_var, (self.vocab_size, self.hidden_size)).astype(np.float16)
+      np_init_weights[1, :] = 0.
 
-      #init_weights = tf.constant(np_init_weights, dtype=tf.float16)
-      #self.shared_weights = tf.get_variable("weights", 
-                                            #initializer=init_weights,
-                                            #regularizer=self.regularizer)
+      init_weights = tf.constant(np_init_weights)#, dtype=tf.float16)
+      self.shared_weights = tf.get_variable("weights", 
+                                            initializer=init_weights,
+                                            regularizer=self.regularizer)
       #self.shared_weights = tf.Print(self.shared_weights, [self.shared_weights], message="BIGTENSOR", summarize=self.vocab_size * self.hidden_size)
 
-      #np_mask = np.ones((self.vocab_size, self.hidden_size))
-      #np_mask[1, :] = 0.
-      #mask = tf.constant(np_mask, dtype=tf.float16)
-      #invert_mask = tf.abs(mask - 1.)
-      #self.shared_weights = tf.stop_gradient(invert_mask * self.shared_weights) + (mask * self.shared_weights)
+      np_mask = np.ones((self.vocab_size, self.hidden_size))
+      np_mask[1, :] = 0.
+      mask = tf.constant(np_mask, dtype=tf.float16)
+      invert_mask = tf.abs(mask - 1.)
+      self.shared_weights = tf.stop_gradient(invert_mask * self.shared_weights) + (mask * self.shared_weights)
       #print(self.shared_weights)
       #self.shared_weights = tf.Print(self.shared_weights, [self.shared_weights], summarize=self.hidden_size * 3)
 
       # ZZZ
+      '''
       self.shared_weights = tf.get_variable("weights", [self.vocab_size, self.hidden_size],
                                             initializer=tf.random_normal_initializer(0., self.init_var), \
                                             regularizer=self.regularizer)
+      '''
 
     self.built = True
 
@@ -101,6 +102,8 @@ class EmbeddingSharedWeights(tf.layers.Layer):
       if self.embed_scale:
         # Scale embedding by the sqrt of the hidden size
         embeddings *= self.hidden_size ** 0.5
+
+      print(embeddings)
 
       if self.mask_paddings:
         # Create binary array of size [batch_size, length]

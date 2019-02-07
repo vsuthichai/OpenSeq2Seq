@@ -9,7 +9,8 @@ import argparse
 import sentencepiece as spm
 
 
-vocab_size = 32768
+#vocab_size = 32768
+vocab_size = 33712
 
 def train_tokenizer_model(args):
   print("========> Training tokenizer model")
@@ -109,6 +110,7 @@ def main():
   elif args.mode == "tokenize":
     tokenize(args)
   elif args.mode == "detokenize":
+    print(args)
     detokenize(args)
   else:
     raise ValueError('Unknown mode: {0}', args.mode)

@@ -127,9 +127,10 @@ class TransformerEncoder(Encoder):
         pos_encoding = utils.get_position_encoding(
             length, self.params["hidden_size"],
         )
+        print(pos_encoding)
         encoder_inputs = embedded_inputs + tf.cast(x=pos_encoding,
                                                    dtype=embedded_inputs.dtype)
-
+        print(encoder_inputs)
       if self.mode == "train":
         encoder_inputs = tf.nn.dropout(
             encoder_inputs, 1 - self.params["layer_postprocess_dropout"],

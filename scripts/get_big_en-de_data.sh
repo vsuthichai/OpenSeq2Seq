@@ -21,8 +21,9 @@ TOKENIZER="tokenizer_wrapper.py"
 
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-OUTPUT_DIR="${1:-alldata_en_dt}"
-VOCAB_SIZE=32768
+OUTPUT_DIR="${1:-wmt17_en_dt}"
+#VOCAB_SIZE=32768
+VOCAB_SIZE=33712
 echo "Writing to ${OUTPUT_DIR}. To change this, set the OUTPUT_DIR environment variable."
 
 OUTPUT_DIR_DATA="${OUTPUT_DIR}/data"
@@ -41,14 +42,14 @@ curl -o ${OUTPUT_DIR_DATA}/common-crawl.tgz \
   http://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz
 
 echo "Downloading News Commentary v11. This may take a while..."
-curl -o ${OUTPUT_DIR_DATA}/nc-v11.tgz \
-  http://data.statmt.org/wmt16/translation-task/training-parallel-nc-v11.tgz
+curl -o ${OUTPUT_DIR_DATA}/nc-v12.tgz \
+  http://data.statmt.org/wmt17/translation-task/training-parallel-nc-v12.tgz
 
 echo "Downloading dev/test sets"
 curl -o ${OUTPUT_DIR_DATA}/dev.tgz \
-  http://data.statmt.org/wmt16/translation-task/dev.tgz
+  http://data.statmt.org/wmt17/translation-task/dev.tgz
 curl -o ${OUTPUT_DIR_DATA}/test.tgz \
-  http://data.statmt.org/wmt16/translation-task/test.tgz
+  http://data.statmt.org/wmt17/translation-task/test.tgz
 
 # Extract everything
 echo "Extracting all files..."
@@ -58,8 +59,8 @@ mkdir -p "${OUTPUT_DIR_DATA}/europarl-v7-de-en"
 tar -xvzf "${OUTPUT_DIR_DATA}/europarl-v7-de-en.tgz" -C "${OUTPUT_DIR_DATA}/europarl-v7-de-en"
 mkdir -p "${OUTPUT_DIR_DATA}/common-crawl"
 tar -xvzf "${OUTPUT_DIR_DATA}/common-crawl.tgz" -C "${OUTPUT_DIR_DATA}/common-crawl"
-mkdir -p "${OUTPUT_DIR_DATA}/nc-v11"
-tar -xvzf "${OUTPUT_DIR_DATA}/nc-v11.tgz" -C "${OUTPUT_DIR_DATA}/nc-v11"
+mkdir -p "${OUTPUT_DIR_DATA}/nc-v12"
+tar -xvzf "${OUTPUT_DIR_DATA}/nc-v12.tgz" -C "${OUTPUT_DIR_DATA}/nc-v12"
 mkdir -p "${OUTPUT_DIR_DATA}/dev"
 tar -xvzf "${OUTPUT_DIR_DATA}/dev.tgz" -C "${OUTPUT_DIR_DATA}/dev"
 mkdir -p "${OUTPUT_DIR_DATA}/test"
@@ -76,7 +77,7 @@ wc -l "${OUTPUT_DIR}/train.en"
 #cat "${OUTPUT_DIR_DATA}/paracrawl-v1-2-de-en/paracrawl-release1.en-de.zipporah0-dedup-clean.de" \
 cat  "${OUTPUT_DIR_DATA}/europarl-v7-de-en/europarl-v7.de-en.de" \
   "${OUTPUT_DIR_DATA}/common-crawl/commoncrawl.de-en.de" \
-  "${OUTPUT_DIR_DATA}/nc-v11/training-parallel-nc-v11/news-commentary-v11.de-en.de" \
+  "${OUTPUT_DIR_DATA}/nc-v12/training-parallel-nc-v12/news-commentary-v12.de-en.de" \
   > "${OUTPUT_DIR}/train.de"
 wc -l "${OUTPUT_DIR}/train.de"
 

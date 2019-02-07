@@ -59,6 +59,6 @@ class PrintTensorHook(tf.train.SessionRunHook):
     #print(tensor_val.shape)
     #print(tensor_val.dtype)
     #print(tensor_val)
-    np.save("/tmp/1-tf.npz", tensor_val)
+    np.save("/tmp/1-tf", tensor_val)
     sys.exit(0)
 
